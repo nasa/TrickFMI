@@ -1,0 +1,305 @@
+/**************************** Trick Header *******************************
+PURPOSE: (S_define Header)
+LIBRARY_DEPENDENCY:
+   ( (TrickFMI2/FMI2ModelBase.cc)
+     (TrickFMI2/FMI2CoSimulationModel.cc)
+     (TrickFMI2/FMI2FMUModelDescription.cc)
+     (TrickFMI2/trick_fmi_services.c) )
+*************************************************************************/
+/*!
+@file
+@brief Example FMU Co-Simulation Bouncing Ball Trick simulation definition file.
+
+This is a simple 1-dimensional bouncing bounce simulation.  It is intended
+to test out and compare Trick native and FMI model implementations.  This is
+a Co-Simulation modality test.
+
+@b References  @n
+-# Lin, A., and Penn, J., <i>Trick User Guide</i>,
+   JSC/Engineering Directorate/Automation, Robotics and Simulation Division,
+   https://github.com/nasa/trick/wiki/Users-Guide, December 2016
+
+-# <i>Functional Mock-up Interface for Model Exchange and Co-Simulation</i>,
+   MODELISAR consortium and Modelica Association Project “FMI”,
+   https://www.fmi-standard.org/downloads, July 25, 2014.
+
+@tldh
+@trick_link_dependency{TrickFMI2/FMI2ModelBase.cc}
+@trick_link_dependency{TrickFMI2/FMI2CoSimulationModel.cc}
+@trick_link_dependency{TrickFMI2/FMI2FMUModelDescription.cc}
+@trick_link_dependency{TrickFMI2/trick_fmi_services.c}
+
+@copyright Copyright 2017 United States Government as represented by the
+Administrator of the National Aeronautics and Space Administration.
+No copyright is claimed in the United States under Title 17, U.S. Code.
+All Other Rights Reserved.
+
+@revs_begin
+@rev_entry{Edwin Z. Crues, NASA ER7, TrickFMI, January 2017, --, Initial version}
+@revs_end
+
+*/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include <iostream>
+##include <sstream>
+##include <string>
+##include <math.h>
+
+##include "sim_services/include/exec_proto.h"
+##include "sim_services/Integrator/include/integrator_c_intf.h"
+
+##include "TrickFMI2/trick_fmi_services.h"
+
+#define DTR (0.0174532925199433)  /* degrees to radians. */
+
+##include "TrickFMI2/FMI2CoSimulationModel.hh"
+
+
+/*!
+ * @brief The Bouncing Ball model simulation object.
+ *
+ * Defines the Trick simulation object for the Bouncing Ball.  In essence, this
+ * is a type definition.  This must preceed any instance declarations further
+ * down the S_define file.
+ */
+class FMICoSimulationSimObject : public Trick::SimObject {
+
+  public:
+   TrickFMI::FMI2CoSimulationModel fmu;
+
+   std::string fmu_path;
+   std::string lib_path;
+   int         logging_on;
+
+   double position;     //!< trick_units{m}    Ball position.
+   double velocity;     //!< trick_units{m/s}  Ball velocity.
+   double acceleration; //!< trick_units{m/s2} Ball acceleration.
+   double mass;         //!< trick_units{kg}   Ball mass.
+   double gravity;      //!< trick_units{m/s2} Gravitational acceleration.
+   double e;            //!< trick_units{--}   Coefficient of restitution.
+   double floor;        //!< trick_units{m}    Floor position.
+
+   fmi2CallbackFunctions * fmu_callbacks_ptr; //!< trick_io{**}
+
+   /*!
+    * @brief Bouncing ball model simulation object default constructor.
+    *
+    * While this looks like a standard C++ constructor object at first glance,
+    * it is more than that for a Trick simulation object.  This constructor
+    * is processed by Trick to generate an actual C++ constructor in the
+    * S_source.cc file.  The jobs declarations are used to add jobs into the
+    * appropriate job queues with associated cycle time.
+    */
+   FMICoSimulationSimObject() {
+
+      // Initialization functions.
+      ("initialization") fmu_load();
+      ("initialization") fmu_initialize();
+      ("initialization") fmu_init_data();
+      ("initialization") fmu_get_data();
+
+      // Schedules jobs.
+      //(0.01, "scheduled") fmu_propagate_state();
+      //(0.01, "scheduled") fmu_get_data();
+
+      // Propagation jobs.
+      ("pre_integration") fmu_propagate_state();
+
+      // Shutdown jobs.
+      ("shutdown") fmu_shutdown();
+
+   }
+
+
+   void fmu_load() {
+
+      std::ostringstream message;
+
+      /* Tell the system where to unpack the fmu. */
+      fmu.set_unpack_dir( "unpack" );
+
+      // Load the FMU.
+      if ( fmu.load_fmu( this->fmu_path ) != fmi2OK ) {
+         message << "There is probably an error in reading the FMU: ";
+         message << "\"" << this->fmu_path << "\"!" << std::endl;
+         exec_terminate( __FILE__, message.str().c_str() );
+      }
+
+      return;
+   }
+
+
+   void fmu_init_data() {
+
+      double values[7];
+      fmi2ValueReference vr[] = {0,1,2,3,4,5,6};
+
+      // Set acceleration from gravity.
+      acceleration = -gravity;
+
+      // Set the initial values for model variables.
+      values[0] = position;
+      values[1] = velocity;
+      values[2] = acceleration;
+      values[3] = mass;
+      values[4] = gravity;
+      values[5] = e;
+      values[6] = floor;
+      fmu.fmi2SetReal( vr, 7, values );
+
+      return;
+   }
+
+
+   void fmu_initialize() {
+
+      std::ostringstream message;
+
+      // Specify the simulation environment callback functions.
+      // Ultimately, it needs to persist for the length of the simulation.
+      // The challenge is that fmi2CallbackFunctions has const attributes.
+      // Not a pretty solution but it does seem to work.  Hopefully a more
+      // Elegant solution will present itself in the future.
+      fmu_callbacks_ptr = (fmi2CallbackFunctions*)calloc( 1, sizeof(fmi2CallbackFunctions) );
+      fmi2CallbackFunctions fmu_callbacks = { .logger = trick_fmi_logger,
+                                              .allocateMemory = calloc,
+                                              .freeMemory = free,
+                                              .stepFinished = NULL,
+                                              .componentEnvironment = NULL };
+      memcpy(fmu_callbacks_ptr, &fmu_callbacks, sizeof(fmi2CallbackFunctions));
+
+      // Instantiate the model.
+      if ( fmu.fmi2Instantiate( "trickBounce",
+                                fmi2CoSimulation,
+                                "{Trick_Bounce_Model_Version_0.0.0}",
+                                "",
+                                this->fmu_callbacks_ptr,
+                                fmi2False,
+                                this->logging_on ) == NULL ) {
+         message << "Unable to instantiate FMU: ";
+         message << "\"" << this->fmu_path << "\"!" << std::endl;
+         exec_terminate( __FILE__, message.str().c_str() );
+      }
+
+      // Set up the simulation execution.
+      fmu.fmi2SetupExperiment( fmi2False, 0.0, exec_get_sim_time(), fmi2False, 0.0 );
+
+      // 7. Initialize the simulation state.
+      fmu.fmi2EnterInitializationMode();
+      fmu.fmi2ExitInitializationMode();
+
+      return;
+   }
+
+
+   void fmu_get_data(){
+
+      double values[3];
+      fmi2ValueReference vr[] = {0,1,2};
+
+      // Set the initial values for model variables.
+      values[0] = position;
+      values[1] = velocity;
+      values[2] = acceleration;
+
+      // Get values.
+      fmu.fmi2GetReal( vr, 3, values );
+
+      // Transfer values into simulation variables.
+      position     = values[0];
+      velocity     = values[1];
+      acceleration = values[2];
+
+      return;
+   }
+
+
+   void fmu_set_data(){
+
+      double values[3];
+      fmi2ValueReference vr[] = {0,1,2};
+
+      // Transfer simulation variables into values.
+      values[0] = position;
+      values[1] = velocity;
+      values[2] = acceleration;
+
+      // Set model values.
+      fmu.fmi2SetReal( vr, 3, values );
+
+      return;
+   }
+
+
+   void fmu_propagate_state()
+   {
+      std::ostringstream message;
+      fmi2Real job_cycle, model_time;
+
+      // Compute the model time from the simulation time and the JOB cycle.
+      // Note that this should be a "pre_integration" or "post_integtation"
+      // class job.  We have to do this since the doStep routine takes the
+      // model from the currentCommunicationPoint and propagates the model
+      // forward in time by the communicationStepSize.  However, by the time
+      // the "pre_integration" and "post_integtation" class jobs are called,
+      // the simulation time has already been advanced.  We have to do this
+      // to compute the correct time to pass to the FMU model.
+      job_cycle = exec_get_job_cycle( NULL );
+      model_time = exec_get_sim_time() - job_cycle;
+
+      // Call the FMU model doStep routine to propagate the model.
+      if ( fmu.fmi2DoStep( model_time, job_cycle, fmi2True ) != fmi2OK ){
+         message << "Unable to propagate state for FMU: ";
+         message << "\"" << this->fmu_path << "\"!" << std::endl;
+         message << "   time = " << exec_get_sim_time();
+         message << "   time_step = " << exec_get_job_cycle( NULL ) << std::endl;
+         exec_terminate( __FILE__, message.str().c_str() );
+      }
+
+      // Get the propagated model state.
+      fmu_get_data();
+
+      return;
+   }
+
+
+   void fmu_shutdown()
+   {
+      // Terminate simulation
+      fmu.fmi2Terminate();
+
+      // Clean up.
+      fmu.fmi2FreeInstance();
+      fmu.clean_up();
+
+      return;
+   }
+
+  private:
+   // Make the copy constructor and assignment operator private
+   // (and unimplemented) to avoid erroneous copies
+   /**
+    * Not implemented.
+    */
+   FMICoSimulationSimObject (const FMICoSimulationSimObject &);
+
+   /**
+    * Not implemented.
+    */
+   FMICoSimulationSimObject & operator= (const FMICoSimulationSimObject &);
+
+};
+
+FMICoSimulationSimObject ball;
+
+// Doxygen should not process these.
+//!@cond
+
+// We create the integration loop here even though we don't really need it.
+// It has to be present for "pre_integration" and "post_integration" class
+// jobs to be called.
+integrate my_integ_loop (0.01) ball;
+
+//!@endcond

@@ -1,0 +1,424 @@
+/**************************** Trick Header *******************************
+PURPOSE: (S_define Header)
+LIBRARY_DEPENDENCY:
+   ( (TrickFMI2/FMI2ModelBase.cc)
+     (TrickFMI2/FMI2ModelExchangeModel.cc)
+     (TrickFMI2/FMI2FMUModelDescription.cc)
+     (TrickFMI2/trick_fmi_services.c) )
+*************************************************************************/
+/*!
+@file
+@brief Example FMU Model Exchange Bouncing Ball Trick simulation definition file.
+
+This is a simple 1-dimensional bouncing bounce simulation.  It is intended
+to test out and compare Trick native and FMI model implementations.  This is
+a Model Exchange modality test.
+
+@b References  @n
+-# Lin, A., and Penn, J., <i>Trick User Guide</i>,
+   JSC/Engineering Directorate/Automation, Robotics and Simulation Division,
+   https://github.com/nasa/trick/wiki/Users-Guide, December 2016
+
+-# <i>Functional Mock-up Interface for Model Exchange and Co-Simulation</i>,
+   MODELISAR consortium and Modelica Association Project “FMI”,
+   https://www.fmi-standard.org/downloads, July 25, 2014.
+
+@tldh
+@trick_link_dependency{TrickFMI2/FMI2ModelBase.cc}
+@trick_link_dependency{TrickFMI2/FMI2ModelExchangeModel.cc}
+@trick_link_dependency{TrickFMI2/FMI2FMUModelDescription.cc}
+@trick_link_dependency{TrickFMI2/trick_fmi_services.c}
+
+@copyright Copyright 2017 United States Government as represented by the
+Administrator of the National Aeronautics and Space Administration.
+No copyright is claimed in the United States under Title 17, U.S. Code.
+All Other Rights Reserved.
+
+@revs_begin
+@rev_entry{Edwin Z. Crues, NASA ER7, TrickFMI, January 2017, --, Initial version}
+@revs_end
+
+*/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include <iostream>
+##include <sstream>
+##include <string>
+##include <math.h>
+
+##include "trick/exec_proto.h"
+##include "trick/integrator_c_intf.h"
+##include "trick/regula_falsi.h"
+
+##include "TrickFMI2/trick_fmi_services.h"
+
+#define DTR (0.0174532925199433)  /* degrees to radians. */
+
+##include "TrickFMI2/FMI2ModelExchangeModel.hh"
+
+
+/*!
+ * @brief The Bouncing Ball model simulation object.
+ *
+ * Defines the Trick simulation object for the Bouncing Ball.  In essence, this
+ * is a type definition.  This must preceed any instance declarations further
+ * down the S_define file.
+ */
+class FMIModelExchangeSimObject : public Trick::SimObject {
+
+  public:
+   TrickFMI::FMI2ModelExchangeModel fmu;
+
+   std::string fmu_path;
+   std::string lib_path;
+   int         logging_on;
+
+   double position;     // trick_units{m}    Ball position.
+   double velocity;     // trick_units{m/s}  Ball velocity.
+   double acceleration; // trick_units{m/s2} Ball acceleration.
+   double mass;         // trick_units{kg}   Ball mass.
+   double gravity;      // trick_units{m/s2} Gravitational acceleration.
+   double e;            // trick_units{--}   Coefficient of restitution.
+   double floor;        // trick_units{m}    Floor position.
+
+   REGULA_FALSI floor_event;
+
+   fmi2CallbackFunctions * fmu_callbacks_ptr; //< trick_io{**}
+
+   FMIModelExchangeSimObject() {
+
+      // Initialization functions.
+      ("initialization") fmu_load();
+      ("initialization") fmu_initialize();
+      ("initialization") fmu_init_data();
+      ("initialization") fmu_get_data();
+      ("initialization") fmu_derivative();
+      ("initialization") fmu_get_states();
+
+      // Schedules jobs.
+
+      // Logging jobs.
+      (0.1, "logging") fmu_get_data();
+
+      // Derivative and integration jobs.
+      ("derivative") fmu_derivative();
+      ("pre_integration") fmu_get_states();
+      ("integration") trick_ret = fmu_integrate_states();
+      ("post_integration") fmu_set_states();
+
+      // Dynamics event jobs.
+      ("dynamic_event") fmu_floor_event();
+
+      // Shutdown jobs.
+      ("shutdown") fmu_shutdown();
+
+   }
+
+
+   void fmu_load() {
+
+      std::ostringstream message;
+
+      /* Tell the system where to unpack the fmu. */
+      fmu.set_unpack_dir( "unpack" );
+
+      // Load the FMU.
+      if ( fmu.load_fmu( this->fmu_path ) != fmi2OK ) {
+         message << "There is probably an error in reading the FMU: ";
+         message << "\"" << this->fmu_path << "\"!" << std::endl;
+         exec_terminate( __FILE__, message.str().c_str() );
+      }
+
+      return;
+   }
+
+
+   void fmu_init_data() {
+
+      double values[7];
+      fmi2ValueReference vr[] = {0,1,2,3,4,5,6};
+
+      // Set the initial values for model variables.
+      values[0] = position;
+      values[1] = velocity;
+      values[2] = acceleration;
+      values[3] = mass;
+      values[4] = gravity;
+      values[5] = e;
+      values[6] = floor;
+      fmu.fmi2SetReal( vr, 7, values );
+
+      return;
+   }
+
+
+   void fmu_initialize() {
+
+      std::ostringstream message;
+
+      // Specify the simulation environment callback functions.
+      // Ultimately, it needs to persist for the length of the simulation.
+      // The challenge is that fmi2CallbackFunctions has const attributes.
+      // Not a pretty solution but it does seem to work.  Hopefully a more
+      // Elegant solution will present itself in the future.
+      fmu_callbacks_ptr = (fmi2CallbackFunctions*)calloc( 1, sizeof(fmi2CallbackFunctions) );
+      fmi2CallbackFunctions fmu_callbacks = { .logger = trick_fmi_logger,
+                                              .allocateMemory = calloc,
+                                              .freeMemory = free,
+                                              .stepFinished = NULL,
+                                              .componentEnvironment = NULL };
+      memcpy(fmu_callbacks_ptr, &fmu_callbacks, sizeof(fmi2CallbackFunctions));
+
+      // Instantiate the model.
+      if ( fmu.fmi2Instantiate( "trickBounce",
+                                fmi2ModelExchange,
+                                "{Trick_Bounce_Model_Version_0.0.0}",
+                                "",
+                                this->fmu_callbacks_ptr,
+                                fmi2False,
+                                this->logging_on  ) == NULL ) {
+         message << "Unable to instantiate FMU: ";
+         message << "\"" << this->fmu_path << "\"!" << std::endl;
+         exec_terminate( __FILE__, message.str().c_str() );
+      }
+
+      // Set up the simulation execution.
+      fmu.fmi2SetupExperiment( fmi2False, 0.0, exec_get_sim_time(), fmi2False, 0.0 );
+
+      // 7. Initialize the simulation state.
+      fmu.fmi2EnterInitializationMode();
+      fmu.fmi2ExitInitializationMode();
+
+      // Set the current model time to the simulation start time.
+      fmu.fmi2SetTime( exec_get_sim_time() );
+
+      // Enter Continuous-Time Mode.
+      fmu.fmi2EnterContinuousTimeMode();
+
+      // Inialize the floor bounce Regula Falsi event.
+      reset_regula_falsi( exec_get_sim_time(), &(this->floor_event) );
+
+      return;
+   }
+
+
+   void fmu_get_data(){
+
+      double values[3];
+      fmi2ValueReference vr[] = {0,1,2};
+
+      // Set the initial values for model variables.
+      values[0] = position;
+      values[1] = velocity;
+      values[2] = acceleration;
+
+      // Get values.
+      fmu.fmi2GetReal( vr, 3, values );
+
+      // Transfer values into simulation variables.
+      position     = values[0];
+      velocity     = values[1];
+      acceleration = values[2];
+
+      return;
+   }
+
+
+   void fmu_set_data(){
+
+      double values[3];
+      fmi2ValueReference vr[] = {0,1,2};
+
+      // Transfer simulation variables into values.
+      values[0] = position;
+      values[1] = velocity;
+      values[2] = acceleration;
+
+      // Set model values.
+      fmu.fmi2SetReal( vr, 3, values );
+
+      return;
+   }
+
+
+   void fmu_get_states()
+   {
+      fmi2Real states[2];
+
+      fmu.fmi2GetContinuousStates( states, 2 );
+
+      // Position.
+      position = states[0];
+
+      // Velocity.
+      velocity = states[1];
+
+      return;
+   }
+
+
+   void fmu_set_states()
+   {
+      fmi2Real states[2];
+
+      // Position.
+      states[0] = position;
+
+      // Velocity.
+      states[1] = velocity;
+
+      fmu.fmi2SetContinuousStates( states, 2 );
+
+      return;
+   }
+
+
+   void fmu_derivative()
+   {
+      fmi2Real derivs[2];
+      fmu.fmi2GetDerivatives( derivs, 2 );
+      velocity     = derivs[0];
+      acceleration = derivs[1];
+      return;
+   }
+
+
+   double fmu_floor_event() {
+
+      double        tgo;
+      const size_t  num_events = 1;
+      fmi2Real      events[num_events];
+      int           event_id = 0;
+      fmi2EventInfo event_info;
+
+      /* Get the associated model events.         */
+      /* For this model, there is only one event. */
+      /* For other models, there may be many.     */
+      fmu.fmi2GetEventIndicators( events, num_events );
+
+      /* Compute height above floor. */
+      floor_event.error = events[event_id];
+
+      /* Estimate time to impact/bounce. */
+      tgo = regula_falsi( get_integ_time() , &floor_event );
+
+      /* If Regula Falsi logic detects the event, then call the model's
+       * fmi2NewDiscreteStates
+       * restitution of the ball material.
+       */
+      if ( tgo == 0.0 ) {
+
+         /* Reset the Regula Falsi event logic. */
+         double now = get_integ_time();
+         reset_regula_falsi( now , &floor_event ) ;
+
+         /* Make sure that the model time is set. */
+         fmu.fmi2SetTime( now );
+
+         /* Enter event mode. */
+         fmu.fmi2EnterEventMode();
+
+         /* Call the model's discrete event handling routine. */
+         event_info.newDiscreteStatesNeeded = true;
+         while ( event_info.newDiscreteStatesNeeded ) {
+
+            // Update any new discrete states.
+            fmu.fmi2NewDiscreteStates( &event_info );
+            if ( event_info.terminateSimulation ) {
+               exec_terminate( "ball.floor_event",
+                               "Simulation termination from model." );
+            }
+            if ( event_info.nextEventTimeDefined ) {
+               //next_time_event = event_info.nextEventTime;
+            }
+
+         }
+
+         /* Return to continous time mode. */
+         fmu.fmi2EnterContinuousTimeMode();
+
+
+         // Check for changed state values
+         if ( event_info.valuesOfContinuousStatesChanged == fmi2True ) {
+            fmu_get_states();
+         }
+
+      }
+
+      return( tgo ) ;
+
+   }
+
+
+   int fmu_integrate_states()
+   {
+      int ipass;
+
+      /* CALL THE TRICK INTEGRATION SERVICE */
+      ipass = integrate_2nd_order_ode( &acceleration, &velocity, &position );
+
+      /* Set the state for the time step. */
+      fmu_set_states();
+      fmu.fmi2SetTime( get_integ_time() );
+
+      /* RETURN */
+      return( ipass );
+   }
+
+
+   void fmu_shutdown()
+   {
+      // Terminate simulation
+      fmu.fmi2Terminate();
+
+      // Clean up.
+      fmu.fmi2FreeInstance();
+      fmu.clean_up();
+
+      return;
+   }
+
+
+  private:
+   // Make the copy constructor and assignment operator private
+   // (and unimplemented) to avoid erroneous copies
+   /**
+    * Not implemented.
+    */
+   FMIModelExchangeSimObject (const FMIModelExchangeSimObject &);
+
+   /**
+    * Not implemented.
+    */
+   FMIModelExchangeSimObject & operator= (const FMIModelExchangeSimObject &);
+
+
+};
+
+FMIModelExchangeSimObject ball;
+
+// Doxygen should not process these.
+//!@cond
+
+// We create the integration loop here even though we don't really need it.
+// It has to be present for "pre_integration" and "post_integration" class
+// jobs to be called.
+integrate my_integ_loop (0.001) ball;
+
+//!@endcond
+
+/*!
+ * @brief Create connections within the simulation definition.
+ *
+ * All code listed in the create_connections routine is copied into
+ * S_source.cpp and is executed directly after simobject instantiations.
+ * This routine may be used to to connect data structures between SimObjects.
+ */
+void create_connections() {
+
+   // We can set a default integrator here.  This can be overridden in the input file.
+   my_integ_loop.getIntegrator( Runge_Kutta_2, 2 );
+
+}
+

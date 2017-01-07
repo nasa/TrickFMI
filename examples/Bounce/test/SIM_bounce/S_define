@@ -1,0 +1,143 @@
+/************************TRICK HEADER*****************************************
+PURPOSE:
+   (This is a simple 1-dimensional bouncing bounce simulation.  It is intended
+    to test out and compare Trick native and FMI model implementations.)
+LIBRARY DEPENDENCIES:
+   (
+   )
+DEFAULT DATA:
+   (
+   )
+******************************************************************************/
+/*!
+@file
+@brief Example Bouncing Ball Trick simulation definition file.
+
+This is a simple 1-dimensional bouncing bounce simulation.  It is intended
+to test out and compare Trick native and FMI model implementations.
+
+@par References
+   Lin, A., and Penn, J., <i>Trick User Guide</i>,
+   JSC/Engineering Directorate/Automation, Robotics and Simulation Division,
+   https://github.com/nasa/trick/wiki/Users-Guide, December 2016
+
+@tldh
+@trick_link_dependency{Bounce/src/bounce_environ_default_data.c}
+@trick_link_dependency{Bounce/src/bounce_floor_error.c}
+@trick_link_dependency{Bounce/src/bounce_floor.c}
+@trick_link_dependency{Bounce/src/bounce_state_default_data.c}
+@trick_link_dependency{Bounce/src/bounce_state_deriv.c}
+@trick_link_dependency{Bounce/src/bounce_state_init.c}
+@trick_link_dependency{Bounce/src/bounce_state_integ.c}
+
+@copyright Copyright 2017 United States Government as represented by the
+Administrator of the National Aeronautics and Space Administration.
+No copyright is claimed in the United States under Title 17, U.S. Code.
+All Other Rights Reserved.
+
+@revs_begin
+@rev_entry{Edwin Z. Crues, NASA ER7, TrickFMI, January 2017, --, Initial version}
+@revs_end
+
+*/
+
+/*
+ * default_trick_sys.sm contains the default Trick system SimObjects and instantiations.
+ * Users are free to include a different file that lists out a different set of
+ * system objects.
+ */
+#include "sim_objects/default_trick_sys.sm"
+
+/*
+ * Header files that contain structure/class definitions are included using the
+ * double "##" notation.
+ */
+##include "Bounce/include/BounceProto.h"
+
+/*!
+ * @brief The Bounding Ball model simulation object.
+ *
+ * Defines the Trick simulation object for the bouncing ball.  In essence, this
+ * is a type definition.  This must preceed any instance declarations further
+ * down the S_define file.
+ */
+class bounceSimObject : public Trick::SimObject {
+
+   /*
+    * Data members and functions may be public or private.  If members are
+    * labled private they will not be available in the input processor.
+    */
+  public:
+
+   /*
+    * Model structures/classes are declared as member data in the SimObject
+    */
+   BounceState   state_init; //!< Bouncing ball state intialization data.
+   BounceState   state;      //!< Bouncing ball state data.
+   BounceEnviron env;        //!< Bouncing ball environmental data.
+
+   /*!
+    * @brief Boungin ball model simulation object default constructor.
+    *
+    * While this looks like a standard C++ constructor object at first glance,
+    * it is more than that for a Trick simulation object.  This constructor
+    * is processed by Trick to generate an actual C++ constructor in the
+    * S_source.cc file.  The jobs declarations are used to add jobs into the
+    * appropriate job queues with associated cycle time.
+    */
+   bounceSimObject() : state_init(), state() , env()
+   {
+
+      /*
+       * One of several ways to get default data into the simulation is to
+       * create default data class jobs.  default_data class jobs are run
+       * before initialization.
+       */
+
+      ("default_data") bounce_environ_default_data( &env );
+      ("default_data") bounce_state_default_data( &env, &state_init );
+
+      // INITIALIZATION JOBS
+      ("initialization") bounce_state_init( &state_init, &state );
+
+      // EOM DERIVATIVE AND STATE INTEGRATION JOBS
+      ("derivative") bounce_state_deriv( &env, &state );
+      ("integration") trick_ret = bounce_state_integ( &state );
+
+      // Dynamic event jobs.
+      ("dynamic_event") bounce_floor( &env, &state );
+
+   }
+
+};
+
+/*
+ * SimObjects are instantiated.  SimObjects may be multiply instantiated.
+ */
+bounceSimObject ball; //!< Ball instance object.
+
+// Doxygen should not process these.
+//!@cond
+
+/*
+ * Declare the integration loop and make sure the "ball" is in it.
+ */
+integrate my_integ_loop (0.001) ball;
+
+//!@endcond
+
+
+#define NUM_VARIABLES   2   /* position state and velocity state */
+
+/*!
+ * @brief Create connections within the simulation definition.
+ *
+ * All code listed in the create_connections routine is copied into
+ * S_source.cpp and is executed directly after simobject instantiations.
+ * This routine may be used to to connect data structures between SimObjects.
+ */
+void create_connections() {
+
+   // We can set a default integrator here.  This can be overridden in the input file.
+   my_integ_loop.getIntegrator( Runge_Kutta_2, NUM_VARIABLES);
+}

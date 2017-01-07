@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<fmiModelDescription
+  fmiVersion="2.0"
+  modelName="trickBounce"
+  guid="{Trick_Bounce_Model_Version_0.0.0}"
+  numberOfEventIndicators="0">
+
+<!-- maxOutputDerivativeOrder="false" generates a load error. -->
+<CoSimulation
+  modelIdentifier="trickBounce"
+  needsExecutionTool="false"
+  canHandleVariableCommunicationStepSize="true"
+  canInterpolateInputs="false"
+
+  canRunAsynchronuously="false"
+  canBeInstantiatedOnlyOncePerProcess="false"
+  canNotUseMemoryManagementFunctions="false"
+  canGetAndSetFMUstate="false"
+  canSerializeFMUstate="false"
+  providesDirectionalDerivative="false"
+  />
+
+<ModelExchange
+  modelIdentifier="trickBounce"
+  needsExecutionTool="false"
+  completedIntegratorStepNotNeeded="true"
+  canBeInstantiatedOnlyOncePerProcess="false"
+  canNotUseMemoryManagementFunctions="false"
+  canGetAndSetFMUstate="false"
+  canSerializeFMUstate="false"
+  providesDirectionalDerivative="false"
+  />
+
+<LogCategories>
+  <Category name="logAll"/>
+  <Category name="logError"/>
+  <Category name="logFmiCall"/>
+  <Category name="logEvent"/>
+</LogCategories>
+
+<ModelVariables>
+  <ScalarVariable name="x" valueReference="0" description="Postion, used as state"
+                  causality="output" variability="continuous" initial="exact">
+    <Real start="1.0"/>
+  </ScalarVariable>
+  <ScalarVariable name="v" valueReference="1" description="Velocity of ball, used as state"
+                  causality="output" variability="continuous" initial="exact">
+    <Real start="0.0" derivative="1" reinit="true"/>
+  </ScalarVariable>
+  <ScalarVariable name="a" valueReference="2" description="Acceleration from external forces"
+                  causality="output" variability="continuous" initial="calculated">
+    <Real derivative="2"/>
+  </ScalarVariable>
+  <ScalarVariable name="m" valueReference="3" description="Ball mass"
+                  causality="output" variability="continuous" initial="exact">
+    <Real start="1.0"/>
+  </ScalarVariable>
+  <ScalarVariable name="g" valueReference="4" description="Gravitational acceleration"
+                  causality="parameter" variability="fixed" initial="exact">
+    <Real start="9.81"/>
+  </ScalarVariable>
+  <ScalarVariable name="e" valueReference="5" description="Coefficient of restitution"
+                  causality="parameter" variability="fixed" initial="exact">
+    <Real start="0.7"/>
+  </ScalarVariable>
+  <ScalarVariable name="floor" valueReference="6" description="Horizontal floor position"
+                  causality="parameter" variability="fixed" initial="exact">
+    <Real start="0.0"/>
+  </ScalarVariable>
+</ModelVariables>
+
+<ModelStructure>
+  <Outputs>
+    <Unknown index="1" />
+    <Unknown index="2" />
+    <Unknown index="3" />
+    <Unknown index="4" />
+  </Outputs>
+  <Derivatives>
+    <Unknown index="2" />
+    <Unknown index="3" />
+  </Derivatives>
+  <InitialUnknowns>
+    <Unknown index="2"/>
+    <Unknown index="3"/>
+  </InitialUnknowns>
+</ModelStructure>
+
+</fmiModelDescription>

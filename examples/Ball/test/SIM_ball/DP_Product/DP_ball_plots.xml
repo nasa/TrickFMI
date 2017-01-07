@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<!DOCTYPE product PUBLIC "-//Tricklab//DTD Product V1.0//EN" "Product.dtd">
+<product version="1.0">
+    <tstart>-1.0E20</tstart>
+    <tstop>1.0E20</tstop>
+    <frequency>0.0</frequency>
+    <page hcells="0" vcells="0">
+        <title>Ball Position</title>
+        <plot grid="Yes" grid_color="#b2b2b2">
+            <title>Plot</title>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var units="m">position[0]</var>
+            </curve>
+        </plot>
+        <plot grid="Yes" grid_color="#b2b2b2">
+            <title>Plot</title>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var units="m">position[1]</var>
+            </curve>
+        </plot>
+    </page>
+    <page hcells="0" vcells="0">
+        <title>Ball Velocity</title>
+        <plot grid="Yes" grid_color="#b2b2b2">
+            <title>Plot</title>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var units="m/s">velocity[0]</var>
+            </curve>
+        </plot>
+        <plot grid="Yes" grid_color="#b2b2b2">
+            <title>Plot</title>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var units="m/s">velocity[1]</var>
+            </curve>
+        </plot>
+    </page>
+    <page hcells="0" vcells="0">
+        <title>Ball Acceleration</title>
+        <plot grid="Yes" grid_color="#b2b2b2">
+            <title>Plot</title>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var units="m/s2">acceleration[0]</var>
+            </curve>
+        </plot>
+        <plot grid="Yes" grid_color="#b2b2b2">
+            <title>Plot</title>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var units="m/s2">acceleration[1]</var>
+            </curve>
+        </plot>
+    </page>
+    <page hcells="0" vcells="0">
+        <title>Ball Force</title>
+        <plot grid="Yes" grid_color="#b2b2b2">
+            <title>Plot</title>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var units="N">force[0]</var>
+            </curve>
+        </plot>
+        <plot grid="Yes" grid_color="#b2b2b2">
+            <title>Plot</title>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var units="N">force[1]</var>
+            </curve>
+        </plot>
+    </page>
+</product>

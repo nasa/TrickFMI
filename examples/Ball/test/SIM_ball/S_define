@@ -1,0 +1,149 @@
+/********************************TRICK HEADER**********************************
+PURPOSE:
+LIBRARY DEPENDENCIES:
+   ( (Ball/src/ball_environ_default_data.c)
+     (Ball/src/ball_force_field.c)
+     (Ball/src/ball_print.c)
+     (Ball/src/ball_state_default_data.c)
+     (Ball/src/ball_state_deriv.c)
+     (Ball/src/ball_state_init.c)
+     (Ball/src/ball_state_integ.c) )
+******************************************************************************/
+
+/*!
+@file
+@brief Example Ball Trick simulation definition file.
+
+This is a simple object based example of a 2-dimensional ball simulations.
+This is a variant of the original Trick example Ball simulation.  The core
+model components have been refactored to support incorporation and
+delivery as a Functional Mockup Unit model.
+
+@par References
+   Lin, A., and Penn, J., <i>Trick User Guide</i>,
+   JSC/Engineering Directorate/Automation, Robotics and Simulation Division,
+   https://github.com/nasa/trick/wiki/Users-Guide, December 2016
+
+@tldh
+@trick_link_dependency{Ball/src/ball_environ_default_data.c}
+@trick_link_dependency{Ball/src/ball_force_field.c}
+@trick_link_dependency{Ball/src/ball_print.c}
+@trick_link_dependency{Ball/src/ball_state_default_data.c}
+@trick_link_dependency{Ball/src/ball_state_deriv.c}
+@trick_link_dependency{Ball/src/ball_state_init.c}
+@trick_link_dependency{Ball/src/ball_state_integ.c}
+
+@copyright Copyright 2017 United States Government as represented by the
+Administrator of the National Aeronautics and Space Administration.
+No copyright is claimed in the United States under Title 17, U.S. Code.
+All Other Rights Reserved.
+
+@revs_begin
+@rev_entry{Edwin Z. Crues, NASA ER7, TrickFMI, January 2017, --, Initial version}
+@revs_end
+
+*/
+
+/*
+ * default_trick_sys.sm contains the default Trick system SimObjects and instantiations.
+ */
+#include "sim_objects/default_trick_sys.sm"
+
+/*
+ * Ball model structures and prototype files.
+ */
+##include "Ball/include/BallProto.h"
+
+
+/*!
+ * @brief The Ball model simulation object.
+ *
+ * Defines the Trick simulation object for the Ball.  In essence, this is a
+ * type definition.  This must preceed any instance declarations further down
+ * the S_define file.
+ */
+class ballSimObject : public Trick::SimObject {
+
+  public:
+
+   /*
+    * Ball model structures/classes.
+    */
+   BallExec         exec_data;  //!< Ball execution control data.
+   BallStateInit    state_init; //!< Ball state initialization data.
+   BallState        state;      //!< Ball state data.
+   BallEnviron      env;        //!< Ball environment data.
+   BallEnvironState env_state;  //!< Ball state dependent environment data.
+
+   /*!
+    * @brief Ball model simulation object default constructor.
+    *
+    * While this looks like a standard C++ constructor object at first glance,
+    * it is more than that for a Trick simulation object.  This constructor
+    * is processed by Trick to generate an actual C++ constructor in the
+    * S_source.cc file.  The jobs declarations are used to add jobs into the
+    * appropriate job queues with associated cycle time.
+    */
+   ballSimObject()
+   : exec_data(), state_init(), state(), env(), env_state() {
+
+      // Deafult data jobs.
+      ("default_data") ball_state_default_data( &state_init, &state );
+      ("default_data") ball_environ_default_data( &env );
+
+      // Initialization jobs.
+      ("initialization") ball_state_init( &state_init, &state );
+
+      // Scheduled jobs.
+      (10.0, "scheduled") ball_print( exec_get_sim_time(), &exec_data, &state );
+
+      // Equations of motion: derivative and state integration jobs.
+      ("derivative") ball_force_field( &env, state.position, &env_state );
+      ("derivative") ball_state_deriv( &exec_data, &state );
+      ("integration") trick_ret = ball_state_integ( &state );
+
+      // FIXME: These need to be set to match FMU runs?
+      ("post_integration") ball_force_field( &env, state.position, &env_state );
+      ("post_integration") ball_state_deriv( &exec_data, &state );
+
+   }
+
+};
+
+/*
+ * Create and instance of the ball simulation object called "ball".
+ */
+ballSimObject ball; //!< Ball instance object.
+
+// Doxygen should not process these.
+//!@cond
+/*
+ * Collect the forces that are applied to the "ball" instance.
+ */
+collect ball.exec_data.collected_forces = { ball.env_state.force[0] };
+
+/*
+ * Declare the integration loop and make sure the "ball" is in it.
+ */
+integrate my_integ_loop (0.01) ball;
+
+//!@endcond
+
+
+#define NUM_VARIABLES   4   /* x,y position state and x,y velocity state */
+
+/*!
+ * @brief Create connections within the simulation definition.
+ *
+ * All code listed in the create_connections routine is copied into
+ * S_source.cpp and is executed directly after simobject instantiations.
+ * This routine may be used to to connect data structures between SimObjects.
+ */
+void create_connections() {
+
+   // We can set a default integrator here.
+   // This can be overridden in the input file.
+   // This sets up a 2nd order Runga Kutta integrator as the default.
+   my_integ_loop.getIntegrator( Runge_Kutta_2, NUM_VARIABLES);
+
+}

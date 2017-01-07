@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<fmiModelDescription
+  fmiVersion="2.0"
+  modelName="trickBall"
+  guid="{Trick_Ball_Model_Version_0.0.0}"
+  numberOfEventIndicators="0">
+
+<!-- maxOutputDerivativeOrder="false" generates a load error. -->
+<CoSimulation
+  modelIdentifier="trickBall"
+  needsExecutionTool="false"
+  canHandleVariableCommunicationStepSize="true"
+  canInterpolateInputs="false"
+
+  canRunAsynchronuously="false"
+  canBeInstantiatedOnlyOncePerProcess="false"
+  canNotUseMemoryManagementFunctions="false"
+  canGetAndSetFMUstate="false"
+  canSerializeFMUstate="false"
+  providesDirectionalDerivative="false"
+  />
+  
+<ModelExchange
+  modelIdentifier="trickBall"
+  needsExecutionTool="false"
+  completedIntegratorStepNotNeeded="true"
+  canBeInstantiatedOnlyOncePerProcess="false"
+  canNotUseMemoryManagementFunctions="false"
+  canGetAndSetFMUstate="false"
+  canSerializeFMUstate="false"
+  providesDirectionalDerivative="false"
+  />
+
+<LogCategories>
+  <Category name="logAll"/>
+  <Category name="logError"/>
+  <Category name="logFmiCall"/>
+  <Category name="logEvent"/>
+</LogCategories>
+
+<ModelVariables>
+  <ScalarVariable name="x1" valueReference="0" description="X postion, used as state"
+                  causality="output" variability="continuous" initial="exact">
+    <Real start="0.0"/>
+  </ScalarVariable>
+  <ScalarVariable name="x2" valueReference="1" description="Y postion, used as state"
+                  causality="output" variability="continuous" initial="exact">
+    <Real start="0.0"/>
+  </ScalarVariable>
+  <ScalarVariable name="v1" valueReference="2" description="X velocity of ball, used as state"
+                  causality="output" variability="continuous" initial="exact">
+    <Real start="0.0" derivative="1" reinit="true"/>
+  </ScalarVariable>
+  <ScalarVariable name="v2" valueReference="3" description="Y velocity of ball, used as state"
+                  causality="output" variability="continuous" initial="exact">
+    <Real start="0.0" derivative="2" reinit="true"/>
+  </ScalarVariable>
+  <ScalarVariable name="a1" valueReference="4" description="X acceleration from external forces"
+                  causality="output" variability="continuous" initial="calculated">
+    <Real derivative="3"/>
+  </ScalarVariable>
+  <ScalarVariable name="a2" valueReference="5" description="Y acceleration from external forces"
+                  causality="output" variability="continuous" initial="calculated">
+    <Real derivative="4"/>
+  </ScalarVariable>
+  <ScalarVariable name="m" valueReference="6" description="Ball mass"
+                  causality="output" variability="continuous" initial="calculated">
+    <Real start="10.0"/>
+  </ScalarVariable>
+  <ScalarVariable name="force1" valueReference="7" description="X external forces"
+                  causality="output" variability="continuous" initial="calculated">
+    <Real start="0.0"/>
+  </ScalarVariable>
+  <ScalarVariable name="force2" valueReference="8" description="Y external forces"
+                  causality="output" variability="continuous" initial="calculated">
+    <Real start="0.0"/>
+  </ScalarVariable>
+  <ScalarVariable name="origin1" valueReference="9" description="X position of central force"
+                  causality="parameter" variability="fixed" initial="exact">
+    <Real start="0.0"/>
+  </ScalarVariable>
+  <ScalarVariable name="origin2" valueReference="10" description="Y position of central force"
+                  causality="parameter" variability="fixed" initial="exact">
+    <Real start="2.0"/>
+  </ScalarVariable>
+  <ScalarVariable name="env_force" valueReference="11" description="Magnitude of central force"
+                  causality="parameter" variability="fixed" initial="exact">
+    <Real start="8.0"/>
+  </ScalarVariable>
+</ModelVariables>
+
+<ModelStructure>
+  <Outputs>
+    <Unknown index="1" />
+    <Unknown index="2" />
+    <Unknown index="3" />
+    <Unknown index="4" />
+    <Unknown index="5" />
+    <Unknown index="6" />
+    <Unknown index="7" />
+    <Unknown index="8" />
+    <Unknown index="9" />
+  </Outputs>
+  <Derivatives>
+    <Unknown index="3" />
+    <Unknown index="4" />
+    <Unknown index="5" />
+    <Unknown index="6" />
+  </Derivatives>
+  <InitialUnknowns>
+    <Unknown index="3"/>
+    <Unknown index="4"/>
+    <Unknown index="5" />
+    <Unknown index="6" />
+  </InitialUnknowns>
+</ModelStructure>
+
+</fmiModelDescription>

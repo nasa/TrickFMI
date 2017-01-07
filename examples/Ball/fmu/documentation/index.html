@@ -1,0 +1,30 @@
+<html>
+<head>
+    <title>Documentation for trickBall.fmu</title>
+<style type="text/css">
+  html { font-family: Verdana, Arial, Helvetica, sans-serif; }
+  h1   { color: #000066; }
+</style>
+</head>
+<body>
+<h1>trickBall.fmu</h1>
+The bouncingBall implements the following equation: 
+<ul>
+<li> der(x) = v;
+<li> der(v) = a = force/m;
+<li> force = env_force * |x - origin|
+</ul>
+with start values x=[5.0,5.0], env_force=8.0, origin=[0.0,2.0] and
+<ul>
+<li> x: position of ball [m], used as state
+<li> v: velocity of ball [m/s], used as state
+<li> der(x): velocity of ball [m/s]
+<li> der(v): acceleration of ball [m/s2]
+<li> force: external force on ball [N], a parameter
+<li> origin: external force on ball [N], a parameter
+<li> env_force: central force [N], a parameter
+</ul>
+
+
+</body>
+</html>

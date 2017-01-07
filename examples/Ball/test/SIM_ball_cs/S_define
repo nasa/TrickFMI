@@ -1,0 +1,297 @@
+/**************************** Trick Header *******************************
+PURPOSE: (S_define Header)
+LIBRARY_DEPENDENCY:
+   ( (TrickFMI2/FMI2ModelBase.cc)
+     (TrickFMI2/FMI2CoSimulationModel.cc)
+     (TrickFMI2/FMI2FMUModelDescription.cc)
+     (TrickFMI2/trick_fmi_services.c) )
+*************************************************************************/
+/*!
+@file
+@brief Example FMU Co-Simulation Ball Trick simulation definition file.
+
+This is a simple test example of a 2-dimensional ball simulations using
+a Functional Mockup Unit (FMU) implementation.  This is a variant of the
+original Trick example Ball simulation.  The core model components have been
+refactored to support incorporation and delivery as a Functional Mockup Unit
+model.
+
+@b References  @n
+-# Lin, A., and Penn, J., <i>Trick User Guide</i>,
+   JSC/Engineering Directorate/Automation, Robotics and Simulation Division,
+   https://github.com/nasa/trick/wiki/Users-Guide, December 2016
+
+-# <i>Functional Mock-up Interface for Model Exchange and Co-Simulation</i>,
+   MODELISAR consortium and Modelica Association Project “FMI”,
+   https://www.fmi-standard.org/downloads, July 25, 2014.
+
+@tldh
+@trick_link_dependency{TrickFMI2/FMI2ModelBase.cc}
+@trick_link_dependency{TrickFMI2/FMI2CoSimulationModel.cc}
+@trick_link_dependency{TrickFMI2/FMI2FMUModelDescription.cc}
+@trick_link_dependency{TrickFMI2/trick_fmi_services.c}
+
+@copyright Copyright 2017 United States Government as represented by the
+Administrator of the National Aeronautics and Space Administration.
+No copyright is claimed in the United States under Title 17, U.S. Code.
+All Other Rights Reserved.
+
+@revs_begin
+@rev_entry{Edwin Z. Crues, NASA ER7, TrickFMI, January 2017, --, Initial version}
+@revs_end
+
+*/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include <iostream>
+##include <sstream>
+##include <string>
+##include <math.h>
+
+##include "sim_services/include/exec_proto.h"
+
+##include "TrickFMI2/trick_fmi_services.h"
+
+#define DTR (0.0174532925199433)  /* degrees to radians. */
+
+##include "TrickFMI2/FMI2CoSimulationModel.hh"
+
+
+/*!
+ * @brief The Ball model simulation object.
+ *
+ * Defines the Trick simulation object for the Ball.  In essence, this is a
+ * type definition.  This must preceed any instance declarations further down
+ * the S_define file.
+ */
+class FMICoSimulationSimObject : public Trick::SimObject {
+
+  public:
+   TrickFMI::FMI2CoSimulationModel fmu;
+
+   std::string fmu_path;
+   std::string lib_path;
+   int         logging_on;
+
+   double position[2];     // trick_units{m}
+   double velocity[2];     // trick_units{m/s}
+   double acceleration[2]; // trick_units{m/s2}
+   double force[2];        // trick_units{N}
+
+   fmi2CallbackFunctions * fmu_callbacks_ptr; //< trick_io{**}
+
+   /*!
+    * @brief Ball model simulation object default constructor.
+    *
+    * While this looks like a standard C++ constructor object at first glance,
+    * it is more than that for a Trick simulation object.  This constructor
+    * is processed by Trick to generate an actual C++ constructor in the
+    * S_source.cc file.  The jobs declarations are used to add jobs into the
+    * appropriate job queues with associated cycle time.
+    */
+   FMICoSimulationSimObject() {
+
+      // Initialization functions.
+      ("initialization") fmu_load();
+      ("initialization") fmu_initialize();
+      ("initialization") fmu_init_data();
+      ("initialization") fmu_get_data();
+
+      // Schedules jobs.
+      (0.1, "scheduled") fmu_propagate_state();
+      (0.1, "scheduled") fmu_get_data();
+
+      // Shutdown jobs.
+      ("shutdown") fmu_shutdown();
+
+   }
+
+
+   void fmu_load() {
+
+      std::ostringstream message;
+
+      /* Tell the system where to unpack the fmu. */
+      fmu.set_unpack_dir( "unpack" );
+
+      // Load the FMU.
+      if ( fmu.load_fmu( this->fmu_path ) != fmi2OK ) {
+         message << "There is probably an error in reading the FMU: ";
+         message << "\"" << this->fmu_path << "\"!" << std::endl;
+         exec_terminate( __FILE__, message.str().c_str() );
+      }
+
+      return;
+   }
+
+
+   void fmu_init_data() {
+
+      fmi2ValueReference vr[2];
+
+      // Set the initial position.
+      vr[0] = 0;
+      vr[1] = 1;
+      fmu.fmi2SetReal( vr, 2, position );
+
+      // Set the initial velocity.
+      velocity[0] = 3.5 * cos( 45.0 * DTR );
+      velocity[1] = 3.5 * sin( 45.0 * DTR );
+      vr[0] = 2;
+      vr[1] = 3;
+      fmu.fmi2SetReal( vr, 2, velocity );
+
+      return;
+   }
+
+
+   void fmu_initialize() {
+
+      std::ostringstream message;
+
+      // Specify the simulation environment callback functions.
+      // Ultimately, it needs to persist for the length of the simulation.
+      // The challenge is that fmi2CallbackFunctions has const attributes.
+      // Not a pretty solution but it does seem to work.  Hopefully a more
+      // Elegant solution will present itself in the future.
+      fmu_callbacks_ptr = (fmi2CallbackFunctions*)calloc( 1, sizeof(fmi2CallbackFunctions) );
+      fmi2CallbackFunctions fmu_callbacks = { .logger = trick_fmi_logger,
+                                              .allocateMemory = calloc,
+                                              .freeMemory = free,
+                                              .stepFinished = NULL,
+                                              .componentEnvironment = NULL };
+      memcpy(fmu_callbacks_ptr, &fmu_callbacks, sizeof(fmi2CallbackFunctions));
+
+      // Instantiate the model.
+      if ( fmu.fmi2Instantiate( "trickBall",
+                                fmi2CoSimulation,
+                                "{Trick_Ball_Model_Version_0.0.0}",
+                                "",
+                                this->fmu_callbacks_ptr,
+                                fmi2False,
+                                this->logging_on ) == NULL ) {
+         message << "Unable to instantiate FMU: ";
+         message << "\"" << this->fmu_path << "\"!" << std::endl;
+         exec_terminate( __FILE__, message.str().c_str() );
+      }
+
+      // Set up the simulation execution.
+      fmu.fmi2SetupExperiment( fmi2False, 0.0, exec_get_sim_time(), fmi2False, 0.0 );
+
+      // 7. Initialize the simulation state.
+      fmu.fmi2EnterInitializationMode();
+      fmu.fmi2ExitInitializationMode();
+
+      return;
+   }
+
+
+   void fmu_get_data(){
+
+      fmi2ValueReference vr[2];
+
+      // Get position.
+      vr[0] = 0;
+      vr[1] = 1;
+      fmu.fmi2GetReal( vr, 2, position );
+
+      // Get velocity.
+      vr[0] = 2;
+      vr[1] = 3;
+      fmu.fmi2GetReal( vr, 2, velocity );
+
+      // Get acceleration.
+      vr[0] = 4;
+      vr[1] = 5;
+      fmu.fmi2GetReal( vr, 2, acceleration );
+
+      // Get force.
+      vr[0] = 7;
+      vr[1] = 8;
+      fmu.fmi2GetReal( vr, 2, force );
+
+      return;
+   }
+
+
+   void fmu_set_data(){
+
+      fmi2ValueReference vr[2];
+
+      // Get position.
+      vr[0] = 0;
+      vr[1] = 1;
+      fmu.fmi2SetReal( vr, 2, position );
+
+      // Get velocity.
+      vr[0] = 2;
+      vr[1] = 3;
+      fmu.fmi2SetReal( vr, 2, velocity );
+
+      // Get acceleration.
+      vr[0] = 4;
+      vr[1] = 5;
+      fmu.fmi2SetReal( vr, 2, acceleration );
+
+      // Get force.
+      vr[0] = 7;
+      vr[1] = 8;
+      fmu.fmi2SetReal( vr, 2, force );
+
+      return;
+   }
+
+
+   void fmu_propagate_state()
+   {
+
+      std::ostringstream message;
+
+      // Propagate the state only after time 0.
+      if ( exec_get_sim_time() > 1.0e-8 ) {
+         if ( fmu.fmi2DoStep( exec_get_sim_time(),
+                              exec_get_job_cycle( NULL ),
+                              fmi2True                    ) != fmi2OK ){
+            message << "Unable to propagate state for FMU: ";
+            message << "\"" << this->fmu_path << "\"!" << std::endl;
+            message << "   time = " << exec_get_sim_time();
+            message << "   time_step = " << exec_get_job_cycle( NULL ) << std::endl;
+            exec_terminate( __FILE__, message.str().c_str() );
+         }
+      }
+      return;
+   }
+
+
+   void fmu_shutdown()
+   {
+      // Terminate simulation
+      fmu.fmi2Terminate();
+
+      // Clean up.
+      fmu.fmi2FreeInstance();
+      fmu.clean_up();
+
+      return;
+   }
+
+  private:
+   // Make the copy constructor and assignment operator private
+   // (and unimplemented) to avoid erroneous copies
+   /**
+    * Not implemented.
+    */
+   FMICoSimulationSimObject (const FMICoSimulationSimObject &);
+
+   /**
+    * Not implemented.
+    */
+   FMICoSimulationSimObject & operator= (const FMICoSimulationSimObject &);
+
+};
+
+/*
+ * Create and instance of the ball simulation object called "ball".
+ */
+FMICoSimulationSimObject trickBallFMU;

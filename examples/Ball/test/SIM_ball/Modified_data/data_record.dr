@@ -1,0 +1,18 @@
+
+#drg0 = trick.DRBinary("FMI2_Ball") 
+drg0 = trick.DRAscii("FMI2_Ball") 
+drg0.set_freq(trick.DR_Always)
+drg0.enable()
+drg0.set_cycle(0.01)
+
+drg0.add_variable("ball.state.position[0]", "position[0]")
+drg0.add_variable("ball.state.position[1]", "position[1]")
+drg0.add_variable("ball.state.velocity[0]", "velocity[0]")
+drg0.add_variable("ball.state.velocity[1]", "velocity[1]")
+drg0.add_variable("ball.state.acceleration[0]", "acceleration[0]")
+drg0.add_variable("ball.state.acceleration[1]", "acceleration[1]")
+drg0.add_variable("ball.exec_data.force[0]", "force[0]")
+drg0.add_variable("ball.exec_data.force[1]", "force[1]")
+
+trick.add_data_record_group( drg0 )
+
