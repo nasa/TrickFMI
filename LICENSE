@@ -40,8 +40,9 @@ Government Agency Point of Contact for Original Software: edwin.z.crues@nasa.gov
        of itself constitute a Modification.
     G. "Original Software" means the computer software first released under
        this Agreement by Government Agency with Government Agency designation
-       MSC-25665 and entitled Trick 13 Simulation Environment including source
-       code, object code and accompanying documentation, if any.
+       MSC-26230-1 and entitled "TrickFMI: A Functional Mockup Interface (FMI)
+       Standard Implementation for Trick Base Models and Simulations" including
+       source code, object code and accompanying documentation, if any.
     H. "Recipient" means anyone who acquires the Subject Software under this
        Agreement, including all Contributors.
     I. "Redistribution" means Distribution of the Subject Software after a
@@ -110,9 +111,10 @@ Government Agency Point of Contact for Original Software: edwin.z.crues@nasa.gov
     B. Each Recipient must ensure that the following copyright notice appears
        prominently in the Subject Software:
 
-       Copyright 2013 United States Government as represented by the
+       Copyright 2017 United States Government as represented by the
        Administrator of the National Aeronautics and Space Administration.
-       All Rights Reserved.
+       No copyright is claimed in the United States under Title 17, U.S. Code.
+       All Other Rights Reserved.
 
     C. Each Contributor must characterize its alteration of the Subject
        Software as a Modification and must identify itself as the originator
@@ -142,7 +144,7 @@ Government Agency Point of Contact for Original Software: edwin.z.crues@nasa.gov
     F. In an effort to track usage and maintain accurate records of the Subject
        Software, each Recipient, upon receipt of the Subject Software, is
        requested to register with Government Agency by visiting the following
-       website: https://github.com/nasa/Trick.  Recipient's name and personal
+       website: https://github.com/nasa/TrickFMI.  Recipient's name and personal
        information shall be used for statistical purposes only. Once a
        Recipient makes a Modification available, it is requested that the
        Recipient inform Government Agency at the web site provided above how to
