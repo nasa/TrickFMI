@@ -12,8 +12,13 @@
 # Determine the host architecture and build information.
 # Should add -m32 to CFLAGS to build linux32 fmus.
 SYSTEM_TYPE := $(shell uname -s)
+PROC_TYPE := $(shell uname -m)
 ifeq ($(SYSTEM_TYPE), Darwin)
-   HOST_ARCH = darwin64
+   ifeq ($(PROC_TYPE), arm64) 
+	   HOST_ARCH = darwin_arm64
+   else
+	   HOST_ARCH = darwin64_x86_64
+   endif
    CFLAGS = -g -Wall
    #LDFLAGS = -g -Wall -v -dynamiclib
    LDFLAGS = -g -Wall -dynamiclib

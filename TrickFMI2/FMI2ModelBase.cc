@@ -416,14 +416,16 @@ fmi2Status TrickFMI::FMI2ModelBase::load_library()
    // Determine the architecture.
 #if defined(__linux__)
    this->architecture = "linux64";
-#elif defined(__APPLE__) && defined(__MACH__)
-   this->architecture = "darwin64";
+#elif defined(__APPLE__) && defined(__MACH__) && defined(__aarch64__)
+   this->architecture = "darwin_arm64";
+#elif defined(__APPLE__) && defined(__MACH__) && defined(__x86_64__)
+   this->architecture = "darwin_x86_64";
 #endif
 
    // Construct the path to the library.
    path << this->unpack_path << "/binaries/" << this->architecture << "/"
         << this->model_description.model_name;
-   if ( this->architecture == "darwin64" ) {
+   if ( this->architecture == "darwin_arm64"  || this->architecture == "darwin_x86_64") {
       path << ".dylib";
    }
    else if ( this->architecture == "linux64" ) {
