@@ -1,5 +1,6 @@
 
-execfile( "Modified_data/data_record.dr" )
+f = "Modified_data/data_record.dr"
+exec(compile(open(f, 'rb').read(), f, 'exec'), globals(), locals())
 
 ball.fmu_path = 'fmu/trickBounce.fmu'
 

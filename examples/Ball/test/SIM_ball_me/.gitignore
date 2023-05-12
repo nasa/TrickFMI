@@ -1,0 +1,15 @@
+DP_Product/
+RUN_model_exchange/S_job_execution
+RUN_model_exchange/S_run_summary
+RUN_model_exchange/send_hs
+RUN_model_exchange/log_*
+RUN_model_exchange/varserver_log
+RUN_model_exchange/_init_log.csv
+*swp
+.trick/
+trick.zip
+build/
+S_main*exe
+S_sie.resource
+S_source.hh
+makefile

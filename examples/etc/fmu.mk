@@ -17,7 +17,7 @@ ifeq ($(SYSTEM_TYPE), Darwin)
    ifeq ($(PROC_TYPE), arm64) 
 	   HOST_ARCH = darwin_arm64
    else
-	   HOST_ARCH = darwin64_x86_64
+	   HOST_ARCH = darwin_x86_64
    endif
    CFLAGS = -g -Wall
    #LDFLAGS = -g -Wall -v -dynamiclib

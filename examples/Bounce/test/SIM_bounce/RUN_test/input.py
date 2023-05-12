@@ -1,6 +1,7 @@
 
 # This one of several ways to include files from the input file
-execfile("Modified_data/data_record.dr")
+f = "Modified_data/data_record.dr"
+exec(compile(open(f, 'rb').read(), f, 'exec'), globals(), locals())
 
 #my_integ_loop.integ_sched.integ_ptr = trick.getIntegrator( trick.Runge_Kutta_2, 4, 1.0);
 my_integ_loop.getIntegrator(trick.Runge_Kutta_2, 2)

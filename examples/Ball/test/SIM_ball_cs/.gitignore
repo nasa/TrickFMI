@@ -1,0 +1,15 @@
+DP_Product/
+RUN_*/S_job_execution
+RUN_*/S_run_summary
+RUN_*/send_hs
+RUN_*/log_*
+RUN_*/varserver_log
+RUN_*/_init_log.csv
+*swp
+.trick/
+trick.zip
+build/
+S_main*exe
+S_sie.resource
+S_source.hh
+makefile

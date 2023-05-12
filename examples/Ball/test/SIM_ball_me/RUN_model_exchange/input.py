@@ -1,5 +1,6 @@
 
-execfile( "Modified_data/trick_fmu.dr" )
+f = "Modified_data/trick_fmu.dr"
+exec(compile(open(f, 'rb').read(), f, 'exec'), globals(), locals())
 
 trickBallFMU.fmu_path = 'fmu/trickBall.fmu'
 trickBallFMU.logging_on = 0
