@@ -34,6 +34,13 @@ else
    endif
 endif
 
+ARCH_TYPE = $(shell uname -m)
+ifeq ($(ARCH_TYPE), arm64)
+   TRICK_CFLAGS += -I/opt/homebrew/opt/libarchive/include
+   TRICK_CXXFLAGS += -I/opt/homebrew/opt/libarchive/include
+   TRICK_LDFLAGS += -L/opt/homebrew/opt/libarchive/lib
+endif
+
 TRICK_LDFLAGS += -v
 TRICK_LDFLAGS += -larchive -lxml2
 
