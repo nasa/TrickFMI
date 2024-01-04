@@ -48,6 +48,7 @@ jobs:
         run: |
           export TRICK_HOME="/home/trick"
           echo $PATH
+          echo "$TRICK_HOME/bin" >> $GITHUB_PATH
           export MAKEFLAGS=-j`nproc`
           export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
 
