@@ -7,5 +7,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: cppcheck
-        run: python3 scripts/check_code.py --overwrite --xml_output
+        run: pwd; ls; python3 scripts/check_code.py --overwrite --xml_output
 
