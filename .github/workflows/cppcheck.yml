@@ -5,6 +5,8 @@ on: push
 jobs:
   cppcheck:
     runs-on: ubuntu-latest
+    container: docker://oraclelinux:8
+
     steps:
 
       - name: Update package manager
