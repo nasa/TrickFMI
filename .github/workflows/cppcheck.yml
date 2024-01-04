@@ -6,12 +6,34 @@ jobs:
   cppcheck:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Dependencies
+
+      - name: Install Trick dependencies
+        run: >
+          dnf -y install 'dnf-command(config-manager)' dnf-plugins-core
+          bison clang flex git llvm make maven swig cmake clang-devel
+          gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static
+          ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 udunits2
+          udunits2-devel which zlib-devel libX11-devel libXt-devel python3-devel diffutils
+
+      - name: Install TrickFMI Dependencies
         run: python3 -m pip install GitPython
 
 
       - name: Checkout repository
         uses: actions/checkout@master
+
+      - name: Build Trick
+        # Failure here is likely due to new or changed dependencies of Trick, see above
+        # For issue #93: we use the same fix as Trick for assigning JAVA_HOME, see:
+        #   trick/.github/workflows/test_32_oracle.yml
+        run: |
+          export TRICK_HOME="/home/trick"
+          export MAKEFLAGS=-j`nproc`
+          export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
+          git clone https://github.com/nasa/trick.git ${TRICK_HOME}
+          cd ${TRICK_HOME}
+          ./configure
+          make
 
       - name: cppcheck
         run: pwd; ls; python3 scripts/check_code.py --overwrite --xml_output
