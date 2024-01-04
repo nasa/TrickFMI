@@ -1,0 +1,15 @@
+cppcheck_configs:
+  - std=c++11
+
+cppcheck_cflags:
+
+cppcheck_whitelist:
+
+cppcheck_cflags:
+
+cppcheck_model_dirs:
+  - TrickFMI2
+
+flawfinder_configs:
+
+flawfinder_whitelist:
