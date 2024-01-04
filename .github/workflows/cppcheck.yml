@@ -47,3 +47,4 @@ jobs:
       - name: cppcheck
         run: |
           export TRICK_HOME="/home/trick"
+	      export PATH=$PATH:${TRICK_HOME}/bin
