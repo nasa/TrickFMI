@@ -24,8 +24,9 @@ jobs:
           udunits2-devel which zlib-devel libX11-devel libXt-devel python3-devel diffutils
 
       - name: Install TrickFMI Dependencies
-        run: python3 -m pip install GitPython
-        run: python3 -m pip install PyYAML
+        run: |
+          python3 -m pip install GitPython
+          python3 -m pip install PyYAML
 
       # Clone the Repository
       - name: Checkout repository
