@@ -29,6 +29,7 @@ jobs:
           python3 -m pip install PyYAML
           python3 -m pip install pygments
           python3 -m pip install flawfinder
+          python3 -m pip install numpy
 
       # Clone the Repository
       - name: Checkout repository
