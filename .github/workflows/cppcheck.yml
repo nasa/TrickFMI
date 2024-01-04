@@ -48,4 +48,3 @@ jobs:
           export TRICK_HOME="/home/trick"
 	      export PATH=$PATH:${TRICK_HOME}/bin
           python3 scripts/check_code.py --overwrite --xml_output
-
