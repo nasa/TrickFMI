@@ -47,4 +47,4 @@ jobs:
       - name: cppcheck
         run: |
           export TRICK_HOME="/home/trick"
-	      echo $PATH:${TRICK_HOME}/bin >> $GITHUB_PATH
+	      echo ${TRICK_HOME}/bin >> $GITHUB_PATH
