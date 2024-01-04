@@ -5,7 +5,7 @@ on: push
 jobs:
   cppcheck:
     runs-on: ubuntu-latest
-
     steps:
-      run: python3 scripts/check_code.py --overwrite --xml_output
+      - name: cppcheck
+        run: python3 scripts/check_code.py --overwrite --xml_output
 
