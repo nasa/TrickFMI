@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-          uses: actions/checkout@master
+        uses: actions/checkout
 
       - name: cppcheck
         run: pwd; ls; python3 scripts/check_code.py --overwrite --xml_output
