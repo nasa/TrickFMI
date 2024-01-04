@@ -49,6 +49,7 @@ jobs:
           export TRICK_HOME="/home/trick"
           echo "$TRICK_HOME/bin" >> $GITHUB_PATH
           ls
+          git config --global --add safe.directory ${PWD}
           python3 scripts/check_code.py --overwrite --xml_output
 
 
