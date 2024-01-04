@@ -48,6 +48,7 @@ jobs:
         run: |
           export TRICK_HOME="/home/trick"
           echo "$TRICK_HOME/bin" >> $GITHUB_PATH
+          cd TrickFMI
           python3 scripts/check_code.py --overwrite --xml_output
 
 
