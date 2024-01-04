@@ -6,6 +6,10 @@ jobs:
   cppcheck:
     runs-on: ubuntu-latest
     steps:
+      - name: Install Dependencies
+        run: python3 -m pip install GitPython
+
+
       - name: Checkout repository
         uses: actions/checkout@master
 
