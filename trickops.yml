@@ -1,0 +1,17 @@
+SIM_ball:
+  path: examples/Ball/test/SIM_ball
+
+SIM_ball_cs:
+  path: examples/Ball/test/SIM_ball_cs
+
+SIM_ball_me:
+  path: examples/Ball/test/SIM_ball_me
+
+SIM_bounce:
+  path: examples/Bounce/test/SIM_bounce
+
+SIM_bounce_cs:
+  path: examples/Bounce/test/SIM_bounce_cs
+
+SIM_bounce_me:
+  path: examples/Bounce/test/SIM_bounce_me
