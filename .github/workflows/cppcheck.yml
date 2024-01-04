@@ -69,7 +69,7 @@ jobs:
           echo "$TRICK_HOME/bin" >> $GITHUB_PATH
           git config --global --add safe.directory ${PWD}
           python3 scripts/run_tests.py quiet
-        with:
+         with:
           name: dist-without-markdown
           path: maintenance/trickops
 
