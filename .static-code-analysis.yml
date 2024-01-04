@@ -13,3 +13,7 @@ cppcheck_model_dirs:
 flawfinder_configs:
 
 flawfinder_whitelist:
+
+flawfinder_model_dirs:
+  - TrickFMI2
+
