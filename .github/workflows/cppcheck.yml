@@ -7,6 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+     - name: Update package manager
+       run: |
+         dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+         dnf config-manager --set-enabled ol8_codeready_builder
+         dnf -y update
+
       - name: Install Trick dependencies
         run: >
           dnf -y install 'dnf-command(config-manager)' dnf-plugins-core
