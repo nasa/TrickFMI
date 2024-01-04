@@ -1,9 +1,9 @@
-name: cppcheck
+name: CI Tests
 
 on: push
 
 jobs:
-  cppcheck:
+  all_tests:
     runs-on: ubuntu-latest
     container: docker://oraclelinux:8
 
@@ -24,16 +24,14 @@ jobs:
           udunits2-devel which zlib-devel libX11-devel libXt-devel python3-devel diffutils
 
       - name: Install TrickFMI Dependencies
-        run: python3 -m pip install GitPython
+        run: python3 -m pip install GitPython PyYAML
 
-
+      # Clone the Repository
       - name: Checkout repository
         uses: actions/checkout@master
 
+      # Clone and Build Trick
       - name: Build Trick
-        # Failure here is likely due to new or changed dependencies of Trick, see above
-        # For issue #93: we use the same fix as Trick for assigning JAVA_HOME, see:
-        #   trick/.github/workflows/test_32_oracle.yml
         run: |
           export TRICK_HOME="/home/trick"
           export MAKEFLAGS=-j`nproc`
