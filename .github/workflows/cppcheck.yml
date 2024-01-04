@@ -47,4 +47,6 @@ jobs:
       - name: cppcheck
         run: |
           export TRICK_HOME="/home/trick"
-	      echo $PATH
+          export MAKEFLAGS=-j`nproc`
+          export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
+
