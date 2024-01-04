@@ -27,6 +27,7 @@ jobs:
         run: |
           python3 -m pip install GitPython
           python3 -m pip install PyYAML
+          python3 -m pip install pygments
 
       # Clone the Repository
       - name: Checkout repository
