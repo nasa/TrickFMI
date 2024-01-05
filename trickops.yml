@@ -1,17 +1,35 @@
 SIM_ball:
   path: examples/Ball/test/SIM_ball
-
+  runs:
+    RUN_test/input.py:
+      returns: 0
 SIM_ball_cs:
   path: examples/Ball/test/SIM_ball_cs
+  runs:
+    RUN_cosim/input.py:
+      returns: 0
 
 SIM_ball_me:
   path: examples/Ball/test/SIM_ball_me
+  runs:
+    RUN_model_exchange/input.py:
+      returns: 0
 
 SIM_bounce:
   path: examples/Bounce/test/SIM_bounce
+  runs:
+    RUN_test/input.py:
+      returns: 0
 
 SIM_bounce_cs:
   path: examples/Bounce/test/SIM_bounce_cs
+  runs:
+    RUN_cosim/input.py:
+      returns: 0
 
 SIM_bounce_me:
   path: examples/Bounce/test/SIM_bounce_me
+  runs:
+    RUN_model_exchange/input.py:
+      returns: 0
+
