@@ -9,12 +9,14 @@ jobs:
 
     steps:
 
+      # Update the Package Manager
       - name: Update package manager
         run: |
           dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
           dnf config-manager --set-enabled ol8_codeready_builder
           dnf -y update
 
+      # Install Trick Dependencies
       - name: Install Trick dependencies
         run: >
           dnf -y install 'dnf-command(config-manager)' dnf-plugins-core
@@ -24,6 +26,7 @@ jobs:
           udunits2-devel which zlib-devel libX11-devel libXt-devel python3-devel diffutils cppcheck
           libarchive-devel.x86_64
 
+      # Install Dependencies needed by the TrickFMI Packge
       - name: Install TrickFMI Dependencies
         run: |
           python3 -m pip install GitPython
@@ -71,6 +74,7 @@ jobs:
           git config --global --add safe.directory ${PWD}
           python3 scripts/run_tests.py quiet
 
+      # Archive the Test Artifacts
       - name: Archive Test Artifacts
         uses: actions/upload-artifact@v3
         if: always()
