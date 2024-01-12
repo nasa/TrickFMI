@@ -1,9 +1,9 @@
-name: CI Tests
+name: Linux
 
 on: push
 
 jobs:
-  all_tests:
+  linux:
     runs-on: ubuntu-latest
     container: docker://oraclelinux:8
 
