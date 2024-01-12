@@ -36,7 +36,9 @@ jobs:
           #export MAKEFLAGS=-j`nproc`
           #export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
           git clone https://github.com/nasa/trick.git ${TRICK_HOME}
-          cd ${TRICK_HOME}
+          cd trick
+          #cd ${TRICK_HOME}
+          pwd
           ./configure
           make
           
