@@ -7,6 +7,10 @@ jobs:
     runs-on: macos-latest
 
     steps:
+      # Clone the Repository
+      - name: Checkout repository
+        uses: actions/checkout@master
+
 
       # Install Trick Dependencies
       - name: Install Trick dependencies
@@ -24,10 +28,6 @@ jobs:
           python3 -m pip install pygments
           python3 -m pip install flawfinder
           python3 -m pip install numpy
-
-      # Clone the Repository
-      - name: Checkout repository
-        uses: actions/checkout@master
 
       # Clone and Build Trick
       - name: Build Trick
