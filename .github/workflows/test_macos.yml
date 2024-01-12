@@ -39,7 +39,7 @@ jobs:
           cd trick
           #cd ${TRICK_HOME}
           pwd
-          ./configure
+          ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-14.0.6-x86_64-apple-darwin
           make
           
       # CppCheck
