@@ -35,7 +35,7 @@ jobs:
           #export TRICK_HOME="/home/trick"
           #export MAKEFLAGS=-j`nproc`
           #export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
-          #git clone https://github.com/nasa/trick.git ${TRICK_HOME}
+          git clone https://github.com/nasa/trick.git ${TRICK_HOME}
           cd trick
           ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-14.0.6-x86_64-apple-darwin
           make
