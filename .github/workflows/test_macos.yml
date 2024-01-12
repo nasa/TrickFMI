@@ -38,6 +38,8 @@ jobs:
           #git clone https://github.com/nasa/trick.git ${TRICK_HOME}
           echo "$GITHUB_WORKSPACE"
           ls
+          cd ../
+          ls
           #cd trick
           #cd ${TRICK_HOME}
           #./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-14.0.6-x86_64-apple-darwin
