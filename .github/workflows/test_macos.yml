@@ -23,18 +23,16 @@ jobs:
       # Install Dependencies needed by the TrickFMI Packge
       - name: Install TrickFMI Dependencies
         run: |
-          python3 -m pip install GitPython
-          python3 -m pip install PyYAML
-          python3 -m pip install pygments
-          python3 -m pip install flawfinder
-          python3 -m pip install numpy
+          pip3 install GitPython
+          pip3 install PyYAML
+          pip3 install pygments
+          pip3 install flawfinder
+          pip3 install numpy
+          brew install cppcheck
 
       # Clone and Build Trick
       - name: Build Trick
         run: |
-          #export TRICK_HOME="/home/trick"
-          #export MAKEFLAGS=-j`nproc`
-          #export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
           git clone https://github.com/nasa/trick.git ${TRICK_HOME}
           cd trick
           ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-14.0.6-x86_64-apple-darwin
@@ -43,7 +41,7 @@ jobs:
       # CppCheck
       - name: CppCheck
         run: |
-          export TRICK_HOME="/home/trick"
+          export TRICK_HOME="${GITHUB_WORKSPACE}/trick"
           echo "$TRICK_HOME/bin" >> $GITHUB_PATH
           git config --global --add safe.directory ${PWD}
           scripts/check_code.py --overwrite --xml_output
