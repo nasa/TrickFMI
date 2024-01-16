@@ -23,11 +23,11 @@ jobs:
       # Install Dependencies needed by the TrickFMI Packge
       - name: Install TrickFMI Dependencies
         run: |
-          python3.12.1 -m pip install GitPython
-          python3.12.1 -m pip install PyYAML
-          python3.12.1 -m pip install pygments
-          python3.12.1 -m pip install flawfinder
-          python3.12.1 -m pip install numpy
+          python3 -m pip install GitPython
+          python3 -m pip install PyYAML
+          python3 -m pip install pygments
+          python3 -m pip install flawfinder
+          python3 -m pip install numpy
           brew install cppcheck
 
       # Clone and Build Trick
@@ -45,7 +45,7 @@ jobs:
           echo "$TRICK_HOME/bin" >> $GITHUB_PATH
           git config --global --add safe.directory ${PWD}
           python3 --version
-          scripts/check_code.py --overwrite --xml_output
+          python3 scripts/check_code.py --overwrite --xml_output
 
       # Flaw Finder
       - name: Flaw Finder
