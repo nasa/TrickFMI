@@ -52,6 +52,7 @@ jobs:
           export TRICK_HOME="/home/trick"
           echo "$TRICK_HOME/bin" >> $GITHUB_PATH
           git config --global --add safe.directory ${PWD}
+          which flawfinder
           python3 scripts/find_flaws.py -m0 
 
       # Simulation Tests
