@@ -352,6 +352,8 @@ def find_flawfinder( flawfinder_bin, verbose = True ):
             flawfinder_command = '/usr/local/bin/flawfinder'
          elif os.path.isfile( '/opt/homebrew/bin/flawfinder' ):
             flawfinder_command = '/opt/homebrew/bin/flawfinder'
+         elif os.path.isfile( '/Library/Frameworks/Python.framework/Versions/Current/bin/flawfinder' ):
+            flawfinder_command = '/Library/Frameworks/Python.framework/Versions/Current/bin/flawfinder'
 
    # We're finished hunting. Now let's check for the flawfinder command.
    if flawfinder_command is None:
