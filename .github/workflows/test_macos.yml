@@ -44,7 +44,6 @@ jobs:
           export TRICK_HOME="${GITHUB_WORKSPACE}/trick"
           echo "$TRICK_HOME/bin" >> $GITHUB_PATH
           git config --global --add safe.directory ${PWD}
-          python3 --version
           python3 scripts/check_code.py --overwrite --xml_output
 
       # Flaw Finder
@@ -53,7 +52,7 @@ jobs:
           export TRICK_HOME="/home/trick"
           echo "$TRICK_HOME/bin" >> $GITHUB_PATH
           git config --global --add safe.directory ${PWD}
-          scripts/find_flaws.py -m0 
+          python3 scripts/find_flaws.py -m0 
 
       # Simulation Tests
       - name: Build and Run Sims
