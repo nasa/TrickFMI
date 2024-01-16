@@ -28,7 +28,7 @@ jobs:
           python3 -m pip install pygments
           python3 -m pip install flawfinder
           python3 -m pip install numpy
-          brew install cppcheck
+          brew install cppcheck libarchive
 
       # Clone and Build Trick
       - name: Build Trick
