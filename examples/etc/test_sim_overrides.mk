@@ -64,5 +64,5 @@ $(RUN_DIRS)::
 	@ echo Cleaned up $@
 
 spotless: clean_runs
-	@ $(RM) -r DP_Product
+	-@ $(RM) -r DP_Product
 
