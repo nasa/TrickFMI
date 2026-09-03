@@ -40,7 +40,7 @@ All Other Rights Reserved.
 #include "regula_falsi.h"
 
 /*!
-@brief Regula False iteration control function.
+@brief Regula Falsi iteration control function.
 
 @job_class{ NA }
 

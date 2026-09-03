@@ -21,7 +21,7 @@ simulation interface classes.  This example uses the TrickFMI wrapper code to
 create a Functional Mock-up Interface (FMI) compliant Functional Mock-up
 Unit (FMU).  The use of this FMU is demonstrated in both stand alone C++
 programs and in Trick based simulations.  The Trick based simulations
-demonstrate the use of the TrickFMI FMU interfaces classes.
+demonstrate the use of the TrickFMI FMU interface classes.
 
 @b References  @n
 -# Lin, A., and Penn, J., <i>Trick User Guide</i>,
@@ -35,9 +35,9 @@ demonstrate the use of the TrickFMI FMU interfaces classes.
 /**
 @file BounceProto.h
 @ingroup TrickFMIBounceExample
-@brief Function prototypes for a simple 2-dimensional bouncing bounce.
+@brief Function prototypes for a simple 2-dimensional bouncing ball.
 
-Define a simple 2-dimensional bouncing bounce.  This is an example of using a
+Define a simple 2-dimensional bouncing ball.  This is an example of using a
 model in both native Trick inclusion and in FMI2 model exchange and
 co-simulation.
 
