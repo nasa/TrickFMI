@@ -20,7 +20,7 @@ executive.
 JSC/Engineering Directorate/Automation, Robotics and Simulation Division,
 https://github.com/nasa/trick/wiki/Users-Guide, January 2017
 
-@bug This even logic is probably not correct for multiple events in the
+@bug This event logic is probably not correct for multiple events in the
 same integration step!  If more than one event triggers in the same propagation
 time step, the events need to be ordered in time.  There's currently nothing in
 this code that insures that.  This is how Trick does it in
@@ -50,7 +50,7 @@ fmi2Boolean process_dynamic_events(
    double tgo;
    int einc;
 
-   /* FIXME: This even logic is probably not correct!  If more than one
+   /* FIXME: This event logic is probably not correct!  If more than one
     * event triggers in the same propagation time step, the events need to
     * be ordered in time.  There's currently nothing in this code that
     * insures that.  This is how Trick does it in IntegLoopScheduler.cpp; but
@@ -92,7 +92,7 @@ fmi2Boolean process_dynamic_events(
             // Update the model time.
             model_base->time = *event_time;
 
-            // Reevaluate the Regula False error.
+            // Reevaluate the Regula Falsi error.
             model_base->rf_events[einc].error = model_get_event_indicator( model_base, einc );
 
             // Compute the new time-to-go (tgo) from the Regula Falsi error.

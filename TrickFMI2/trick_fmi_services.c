@@ -9,7 +9,7 @@
 @ingroup TrickFMIWrapper
 @brief TrickFMI Trick service functions.
 
-These functions are used by the TrickFMI C wrapper code to Trick
+These functions are used by the TrickFMI C wrapper code to provide Trick
 compatibility function equivalents.
 
 @b References @n

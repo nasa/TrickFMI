@@ -1,0 +1,340 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf8">
+<title>Flawfinder Results</title>
+<meta name="author" content="David A. Wheeler">
+<meta name="keywords" lang="en" content="flawfinder results, security scan">
+</head>
+<body>
+<h1>Flawfinder Results</h1>
+Here are the security scan results from
+<a href="https://dwheeler.com/flawfinder">Flawfinder version 2.0.19</a>,
+(C) 2001-2019 <a href="https://dwheeler.com">David A. Wheeler</a>.
+Number of rules (primarily dangerous function names) in C/C++ ruleset: 222
+<p>
+Examining examples/Ball/test/FMUCoSimulation/Main.cc <br>
+Examining examples/Ball/test/FMUModelExchange/Main.cc <br>
+Examining examples/Ball/include/BallState.h <br>
+Examining examples/Ball/include/BallExec.h <br>
+Examining examples/Ball/include/BallEnviron.h <br>
+Examining examples/Ball/include/BallProto.h <br>
+Examining examples/Ball/fmu/sources/trickBall.h <br>
+Examining examples/Ball/fmu/sources/trickBall.c <br>
+Examining examples/Ball/src/ball_state_deriv.c <br>
+Examining examples/Ball/src/ball_state_integ.c <br>
+Examining examples/Ball/src/ball_state_alt_integ.c <br>
+Examining examples/Ball/src/ball_environ_default_data.c <br>
+Examining examples/Ball/src/ball_state_default_data.c <br>
+Examining examples/Ball/src/ball_state_init.c <br>
+Examining examples/Ball/src/ball_print.c <br>
+Examining examples/Ball/src/ball_force_field.c <br>
+
+<h2>Final Results</h2>
+<ul>
+<li>examples/Ball/test/FMUCoSimulation/Main.cc:68: <b>  [4] </b> (format) <i> vprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. </i>
+<pre>
+   vprintf( message, valist );
+</pre>
+<li>examples/Ball/test/FMUModelExchange/Main.cc:78: <b>  [4] </b> (format) <i> vprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. </i>
+<pre>
+   vprintf( message, valist );
+</pre>
+<li>examples/Ball/test/FMUCoSimulation/Main.cc:111: <b>  [2] </b> (misc) <i> open:
+  Check when opening files - can an attacker redirect it (via symlinks),
+  force the opening of special file type (e.g., device files), move things
+  around to create a race condition, control its ancestors, or change its
+  contents? (<a
+  href="https://cwe.mitre.org/data/definitions/362.html">CWE-362</a>). </i>
+<pre>
+   outfile.open( "RUN_fmu/log_FMI2_Ball.csv", ios::out | ios::trunc );
+</pre>
+<li>examples/Ball/test/FMUModelExchange/Main.cc:302: <b>  [2] </b> (misc) <i> open:
+  Check when opening files - can an attacker redirect it (via symlinks),
+  force the opening of special file type (e.g., device files), move things
+  around to create a race condition, control its ancestors, or change its
+  contents? (<a
+  href="https://cwe.mitre.org/data/definitions/362.html">CWE-362</a>). </i>
+<pre>
+   outfile.open( "RUN_fmu/log_FMI2_Ball.csv", ios::out | ios::trunc );
+</pre>
+<li>examples/Ball/fmu/sources/trickBall.c:85: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "&amp;Real[%d] - %p\n", iinc, model_base-&gt;real_refs[iinc] );
+</pre>
+<li>examples/Ball/fmu/sources/trickBall.c:86: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "Real[%d] = %g\n", iinc, *(model_base-&gt;real_refs[iinc]) );
+</pre>
+<li>examples/Ball/fmu/sources/trickBall.c:89: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "&amp;State[%d] - %p\n", iinc, model_base-&gt;state_refs[iinc] );
+</pre>
+<li>examples/Ball/fmu/sources/trickBall.c:90: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "State[%d] = %g\n", iinc, *(model_base-&gt;state_refs[iinc]) );
+</pre>
+<li>examples/Ball/fmu/sources/trickBall.c:91: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "&amp;Deriv[%d] - %p\n", iinc, model_base-&gt;deriv_refs[iinc] );
+</pre>
+<li>examples/Ball/fmu/sources/trickBall.c:92: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "Deriv[%d] = %g\n", iinc, *(model_base-&gt;deriv_refs[iinc]) );
+</pre>
+<li>examples/Ball/fmu/sources/trickBall.c:308: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "Number in collect: %ld\n", NUM_COLLECT(collected_forces) );
+</pre>
+<li>examples/Ball/fmu/sources/trickBall.c:310: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "Address in collect %d: %p\n", ii, collected_forces[ii] );
+</pre>
+<li>examples/Ball/fmu/sources/trickBall.c:322: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "time = %f\n", model_base-&gt;time );
+</pre>
+<li>examples/Ball/fmu/sources/trickBall.c:323: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "   position = %12.6f , %12.6f\n",
+</pre>
+<li>examples/Ball/fmu/sources/trickBall.c:326: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "   velocity = %12.6f , %12.6f\n",
+</pre>
+<li>examples/Ball/fmu/sources/trickBall.c:329: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "   accel    = %12.6f , %12.6f\n",
+</pre>
+<li>examples/Ball/fmu/sources/trickBall.c:332: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "   force    = %12.6f , %12.6f\n",
+</pre>
+<li>examples/Ball/fmu/sources/trickBall.c:335: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "   mass     = %12.6f\n",
+</pre>
+<li>examples/Ball/src/ball_print.c:60: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "time = %8.2f , position = %12.6f , %12.6f\n",
+</pre>
+<li>examples/Ball/test/FMUCoSimulation/Main.cc:66: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "FMU Model: %s : %s : %s : ", instance_name,
+</pre>
+<li>examples/Ball/test/FMUCoSimulation/Main.cc:69: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "\n" );
+</pre>
+<li>examples/Ball/test/FMUModelExchange/Main.cc:76: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "FMU Model: %s : %s : %s : ", instance_name,
+</pre>
+<li>examples/Ball/test/FMUModelExchange/Main.cc:79: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "\n" );
+</pre>
+<li>examples/Ball/test/FMUModelExchange/Main.cc:108: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "Error with fmi2SetTime!\n" );
+</pre>
+<li>examples/Ball/test/FMUModelExchange/Main.cc:113: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "Error with fmi2SetContinuousStates!\n" );
+</pre>
+<li>examples/Ball/test/FMUModelExchange/Main.cc:118: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "Error with fmi2GetDerivatives!\n" );
+</pre>
+<li>examples/Ball/test/FMUModelExchange/Main.cc:138: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "Error with fmi2SetTime!\n" );
+</pre>
+<li>examples/Ball/test/FMUModelExchange/Main.cc:143: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "Error with fmi2SetContinuousStates!\n" );
+</pre>
+<li>examples/Ball/test/FMUModelExchange/Main.cc:148: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "Error with fmi2GetDerivatives!\n" );
+</pre>
+<li>examples/Ball/test/FMUModelExchange/Main.cc:160: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "Error with fmi2SetContinuousStates!\n" );
+</pre>
+<li>examples/Ball/test/FMUModelExchange/Main.cc:165: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "Error with fmi2GetDerivatives!\n" );
+</pre>
+<li>examples/Ball/test/FMUModelExchange/Main.cc:432: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+            printf( "Error integrating from t = %g to t = %g!\n", integ_time, integ_time + dt );
+</pre>
+<li>examples/Ball/test/FMUModelExchange/Main.cc:451: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+               printf( "Error with fmi2SetTime!\n" );
+</pre>
+<li>examples/Ball/test/FMUModelExchange/Main.cc:457: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+               printf( "Error with fmi2SetContinuousStates!\n" );
+</pre>
+<li>examples/Ball/test/FMUModelExchange/Main.cc:468: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+            printf( "Error with fmi2CompletedIntegratorStep!\n" );
+</pre>
+</ul>
+<h2>Analysis Summary</h2>
+<p>
+Hits = 35
+<br>
+Lines analyzed = 2177 in approximately 0.02 seconds (88892 lines/second)
+<br>
+Physical Source Lines of Code (SLOC) = 1038
+<br>
+Hits@level = [0]  31 [1]   0 [2]   2 [3]   0 [4]   2 [5]   0 <br>
+Hits@level+ = [0+]  35 [1+]   4 [2+]   4 [3+]   2 [4+]   2 [5+]   0 <br>
+Hits/KSLOC@level+ = [0+] 33.7187 [1+] 3.85356 [2+] 3.85356 [3+] 1.92678 [4+] 1.92678 [5+]   0 <br>
+Minimum risk level = 0
+<br>
+Not every hit is necessarily a security vulnerability.
+You can inhibit a report by adding a comment in this form:
+// flawfinder: ignore
+Make *sure* it's a false positive!
+You can use the option --neverignore to show these.
+<br>
+There may be other security vulnerabilities; review your code!
+<br>
+See '<a href="https://dwheeler.com/secure-programs">Secure Programming HOWTO</a>'
+(<a href="https://dwheeler.com/secure-programs">https://dwheeler.com/secure-programs</a>) for more information.
+</body>
+</html>

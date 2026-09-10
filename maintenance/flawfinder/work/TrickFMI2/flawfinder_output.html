@@ -1,0 +1,526 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf8">
+<title>Flawfinder Results</title>
+<meta name="author" content="David A. Wheeler">
+<meta name="keywords" lang="en" content="flawfinder results, security scan">
+</head>
+<body>
+<h1>Flawfinder Results</h1>
+Here are the security scan results from
+<a href="https://dwheeler.com/flawfinder">Flawfinder version 2.0.19</a>,
+(C) 2001-2019 <a href="https://dwheeler.com">David A. Wheeler</a>.
+Number of rules (primarily dangerous function names) in C/C++ ruleset: 222
+<p>
+Examining TrickFMI2/regula_falsi.h <br>
+Examining TrickFMI2/TrickFMI2ModelMasks.h <br>
+Examining TrickFMI2/process_dynamic_events.c <br>
+Examining TrickFMI2/test/test_unzip.cc <br>
+Examining TrickFMI2/test/test_parse.cc <br>
+Examining TrickFMI2/trick_fmi_services.c <br>
+Examining TrickFMI2/TrickFMI2ModelBase.c <br>
+Examining TrickFMI2/reset_regula_falsi.c <br>
+Examining TrickFMI2/FMI2CoSimulationModel.cc <br>
+Examining TrickFMI2/FMI2FMUModelDescription.cc <br>
+Examining TrickFMI2/trick_fmi_services.h <br>
+Examining TrickFMI2/FMI2ModelBase.cc <br>
+Examining TrickFMI2/regula_falsi.c <br>
+Examining TrickFMI2/TrickFMI2ModelBase.h <br>
+Examining TrickFMI2/FMI2ModelExchangeModel.cc <br>
+
+<h2>Final Results</h2>
+<ul>
+<li>TrickFMI2/TrickFMI2ModelBase.c:1166: <b>  [4] </b> (buffer) <i> strcpy:
+  Does not check for buffer overflows when copying to destination [MS-banned]
+  (<a href="https://cwe.mitre.org/data/definitions/120.html">CWE-120</a>).
+  Consider using snprintf, strcpy_s, or strlcpy (warning: strncpy easily
+  misused). </i>
+<pre>
+         strcpy( (char *)*(model_base-&gt;str_refs[var_ref[i]]), (char *)value[i] );
+</pre>
+<li>TrickFMI2/trick_fmi_services.c:41: <b>  [4] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. </i>
+<pre>
+#define send_hs( file, format, ... ) (printf( format, ##__VA_ARGS__ ))
+</pre>
+<li>TrickFMI2/test/test_unzip.cc:92: <b>  [3] </b> (buffer) <i> getwd:
+  This does not protect against buffer overflows by itself, so use with
+  caution (<a
+  href="https://cwe.mitre.org/data/definitions/120.html">CWE-120</a>, <a
+  href="https://cwe.mitre.org/data/definitions/20.html">CWE-20</a>). Use
+  getcwd instead. </i>
+<pre>
+   if ( getwd( cwd ) == NULL ){
+</pre>
+<li>TrickFMI2/FMI2FMUModelDescription.cc:129: <b>  [2] </b> (integer) <i> atoi:
+  Unless checked, the resulting number can exceed the expected range (<a
+  href="https://cwe.mitre.org/data/definitions/190.html">CWE-190</a>). If
+  source untrusted, check both minimum and maximum, even if the input had no
+  minus sign (large numbers can roll over into negative number; consider
+  saving to an unsigned value if that is intended). </i>
+<pre>
+      this-&gt;number_of_event_indicators = atoi( (const char *) xml_num_event_ids );
+</pre>
+<li>TrickFMI2/FMI2ModelBase.cc:230: <b>  [2] </b> (misc) <i> open:
+  Check when opening files - can an attacker redirect it (via symlinks),
+  force the opening of special file type (e.g., device files), move things
+  around to create a race condition, control its ancestors, or change its
+  contents? (<a
+  href="https://cwe.mitre.org/data/definitions/362.html">CWE-362</a>). </i>
+<pre>
+   cwd_file_id = open( ".", O_RDONLY );
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:173: <b>  [2] </b> (buffer) <i> char:
+  Statically-sized arrays can be improperly restricted, leading to potential
+  overflows or other issues (<a
+  href="https://cwe.mitre.org/data/definitions/119.html">CWE-119</a>!/<a
+  href="https://cwe.mitre.org/data/definitions/120.html">CWE-120</a>).
+  Perform bounds checking, use functions that limit length, or ensure that
+  the size is larger than the maximum possible length. </i>
+<pre>
+   const char *statusKind[3] = {"fmi2DoStepStatus","fmi2PendingStatus","fmi2LastSuccessfulTime"};
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:1151: <b>  [2] </b> (buffer) <i> char:
+  Statically-sized arrays can be improperly restricted, leading to potential
+  overflows or other issues (<a
+  href="https://cwe.mitre.org/data/definitions/119.html">CWE-119</a>!/<a
+  href="https://cwe.mitre.org/data/definitions/120.html">CWE-120</a>).
+  Perform bounds checking, use functions that limit length, or ensure that
+  the size is larger than the maximum possible length. </i>
+<pre>
+              || (strlen((char *)string) &lt; strlen((char *)value[i])) )
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:1166: <b>  [2] </b> (buffer) <i> char:
+  Statically-sized arrays can be improperly restricted, leading to potential
+  overflows or other issues (<a
+  href="https://cwe.mitre.org/data/definitions/119.html">CWE-119</a>!/<a
+  href="https://cwe.mitre.org/data/definitions/120.html">CWE-120</a>).
+  Perform bounds checking, use functions that limit length, or ensure that
+  the size is larger than the maximum possible length. </i>
+<pre>
+         strcpy( (char *)*(model_base-&gt;str_refs[var_ref[i]]), (char *)value[i] );
+</pre>
+<li>TrickFMI2/test/test_parse.cc:111: <b>  [2] </b> (integer) <i> atoi:
+  Unless checked, the resulting number can exceed the expected range (<a
+  href="https://cwe.mitre.org/data/definitions/190.html">CWE-190</a>). If
+  source untrusted, check both minimum and maximum, even if the input had no
+  minus sign (large numbers can roll over into negative number; consider
+  saving to an unsigned value if that is intended). </i>
+<pre>
+      num_event = atoi( (const char *) event_id );
+</pre>
+<li>TrickFMI2/test/test_unzip.cc:51: <b>  [2] </b> (buffer) <i> char:
+  Statically-sized arrays can be improperly restricted, leading to potential
+  overflows or other issues (<a
+  href="https://cwe.mitre.org/data/definitions/119.html">CWE-119</a>!/<a
+  href="https://cwe.mitre.org/data/definitions/120.html">CWE-120</a>).
+  Perform bounds checking, use functions that limit length, or ensure that
+  the size is larger than the maximum possible length. </i>
+<pre>
+   char cwd[MAXPATHLEN];
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:68: <b>  [1] </b> (buffer) <i> strlen:
+  Does not handle strings that are not \0-terminated; if given one it may
+  perform an over-read (it could cause a crash if unprotected) (<a
+  href="https://cwe.mitre.org/data/definitions/126.html">CWE-126</a>). </i>
+<pre>
+   destination = (fmi2Char *)alloc_memory( (strlen(source)+1), sizeof(fmi2Char) );
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:70: <b>  [1] </b> (buffer) <i> strncpy:
+  Easily used incorrectly; doesn't always \0-terminate or check for invalid
+  pointers [MS-banned] (<a
+  href="https://cwe.mitre.org/data/definitions/120.html">CWE-120</a>). </i>
+<pre>
+      strncpy( destination, source, strlen(source) + 1 );
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:70: <b>  [1] </b> (buffer) <i> strlen:
+  Does not handle strings that are not \0-terminated; if given one it may
+  perform an over-read (it could cause a crash if unprotected) (<a
+  href="https://cwe.mitre.org/data/definitions/126.html">CWE-126</a>). </i>
+<pre>
+      strncpy( destination, source, strlen(source) + 1 );
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:450: <b>  [1] </b> (buffer) <i> strlen:
+  Does not handle strings that are not \0-terminated; if given one it may
+  perform an over-read (it could cause a crash if unprotected) (<a
+  href="https://cwe.mitre.org/data/definitions/126.html">CWE-126</a>). </i>
+<pre>
+   if ( (instance_name == NULL) || (strlen(instance_name) == 0) ) {
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:456: <b>  [1] </b> (buffer) <i> strlen:
+  Does not handle strings that are not \0-terminated; if given one it may
+  perform an over-read (it could cause a crash if unprotected) (<a
+  href="https://cwe.mitre.org/data/definitions/126.html">CWE-126</a>). </i>
+<pre>
+   if ( (fmuGUID == NULL) || (strlen(fmuGUID) == 0) ) {
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:1151: <b>  [1] </b> (buffer) <i> strlen:
+  Does not handle strings that are not \0-terminated; if given one it may
+  perform an over-read (it could cause a crash if unprotected) (<a
+  href="https://cwe.mitre.org/data/definitions/126.html">CWE-126</a>). </i>
+<pre>
+              || (strlen((char *)string) &lt; strlen((char *)value[i])) )
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:1151: <b>  [1] </b> (buffer) <i> strlen:
+  Does not handle strings that are not \0-terminated; if given one it may
+  perform an over-read (it could cause a crash if unprotected) (<a
+  href="https://cwe.mitre.org/data/definitions/126.html">CWE-126</a>). </i>
+<pre>
+              || (strlen((char *)string) &lt; strlen((char *)value[i])) )
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:1158: <b>  [1] </b> (buffer) <i> strlen:
+  Does not handle strings that are not \0-terminated; if given one it may
+  perform an over-read (it could cause a crash if unprotected) (<a
+  href="https://cwe.mitre.org/data/definitions/126.html">CWE-126</a>). </i>
+<pre>
+            *(model_base-&gt;str_refs[var_ref[i]]) = (fmi2String)model_base-&gt;functions-&gt;allocateMemory(1 + strlen(value[i]), sizeof(fmi2Char));
+</pre>
+<li>TrickFMI2/FMI2ModelBase.cc:290: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+         fprintf( stderr, "%s\n", archive_error_string( fmu ) );
+</pre>
+<li>TrickFMI2/FMI2ModelBase.cc:296: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+         fprintf( stderr, "%s\n", archive_error_string( unpack ) );
+</pre>
+<li>TrickFMI2/FMI2ModelBase.cc:303: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+            fprintf( stderr, "%s\n", archive_error_string(unpack) );
+</pre>
+<li>TrickFMI2/FMI2ModelBase.cc:313: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+               fprintf( stderr, "%s\n", archive_error_string(unpack) );
+</pre>
+<li>TrickFMI2/FMI2ModelBase.cc:326: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+            fprintf( stderr, "%s\n", archive_error_string( unpack ) );
+</pre>
+<li>TrickFMI2/FMI2ModelBase.cc:333: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+         fprintf( stderr, "%s\n", archive_error_string( unpack ) );
+</pre>
+<li>TrickFMI2/FMI2ModelBase.cc:343: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      fprintf( stderr, "%s\n", archive_error_string( fmu ) );
+</pre>
+<li>TrickFMI2/FMI2ModelBase.cc:352: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      fprintf( stderr, "%s\n", archive_error_string( fmu ) );
+</pre>
+<li>TrickFMI2/FMI2ModelBase.cc:361: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      fprintf( stderr, "%s\n", archive_error_string( fmu ) );
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:218: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "In base_destructor\n" );
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:326: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "In base_constructor\n" );
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:437: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "In fmi2Instantiate\n" );
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:555: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "In fmi2SetupExperiment\n" );
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:591: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "In fmi2EnterInitializationMode\n" );
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:615: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "In fmi2ExitInitializationMode\n" );
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:652: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "In fmi2Terminate\n" );
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:675: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "In fmi2Reset\n" );
+</pre>
+<li>TrickFMI2/TrickFMI2ModelBase.c:705: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf( "In fmi2FreeInstance\n" );
+</pre>
+<li>TrickFMI2/test/test_parse.cc:32: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   printf("FMI Version: %s\n", fmi_ver);
+</pre>
+<li>TrickFMI2/test/test_parse.cc:41: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "Child name: %s\n", child-&gt;name );
+</pre>
+<li>TrickFMI2/test/test_parse.cc:44: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+         printf( "keyword: %s\n", key );
+</pre>
+<li>TrickFMI2/test/test_parse.cc:75: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      fprintf( stderr, "Document \"%s\" not parsed successfully!\n", filename );
+</pre>
+<li>TrickFMI2/test/test_parse.cc:82: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      fprintf( stderr, "Document \"%s\" is empty!\n", filename );
+</pre>
+<li>TrickFMI2/test/test_parse.cc:89: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+   fprintf( stdout, "Found root node: %s\n", cur-&gt;name );
+</pre>
+<li>TrickFMI2/test/test_parse.cc:91: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      fprintf( stderr, "Wrong document type, root node != fmiModelDescription\n" );
+</pre>
+<li>TrickFMI2/test/test_parse.cc:113: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      printf( "Found %d events.\n", num_event );
+</pre>
+<li>TrickFMI2/test/test_parse.cc:120: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      fprintf( stdout, "Found child node: %s\n", cur-&gt;name );
+</pre>
+<li>TrickFMI2/test/test_unzip.cc:87: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      fprintf( stderr, "Error opening FMU file: %s\n", fmu_file );
+</pre>
+<li>TrickFMI2/test/test_unzip.cc:93: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      fprintf( stderr, "Error getting current working directory: %s\n", cwd );
+</pre>
+<li>TrickFMI2/test/test_unzip.cc:99: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      fprintf( stderr, "Unpack directory already exists: %s\n", unpack_dir );
+</pre>
+<li>TrickFMI2/test/test_unzip.cc:129: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+         fprintf( stderr, "%s\n", archive_error_string( fmu ) );
+</pre>
+<li>TrickFMI2/test/test_unzip.cc:135: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+         fprintf( stderr, "%s\n", archive_error_string( unpack ) );
+</pre>
+<li>TrickFMI2/test/test_unzip.cc:142: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+            fprintf( stderr, "%s\n", archive_error_string(unpack) );
+</pre>
+<li>TrickFMI2/test/test_unzip.cc:152: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+               fprintf( stderr, "%s\n", archive_error_string(unpack) );
+</pre>
+<li>TrickFMI2/test/test_unzip.cc:165: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+            fprintf( stderr, "%s\n", archive_error_string( unpack ) );
+</pre>
+<li>TrickFMI2/test/test_unzip.cc:171: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+         fprintf( stderr, "%s\n", archive_error_string( unpack ) );
+</pre>
+<li>TrickFMI2/test/test_unzip.cc:176: <b>  [0] </b> (format) <i> printf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+         printf("%s\n",archive_entry_pathname(entry));
+</pre>
+<li>TrickFMI2/test/test_unzip.cc:186: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      fprintf( stderr, "%s\n", archive_error_string( fmu ) );
+</pre>
+<li>TrickFMI2/test/test_unzip.cc:195: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      fprintf( stderr, "%s\n", archive_error_string( fmu ) );
+</pre>
+<li>TrickFMI2/test/test_unzip.cc:204: <b>  [0] </b> (format) <i> fprintf:
+  If format strings can be influenced by an attacker, they can be exploited
+  (<a href="https://cwe.mitre.org/data/definitions/134.html">CWE-134</a>).
+  Use a constant for the format specification. Constant format string, so not
+  considered risky. </i>
+<pre>
+      fprintf( stderr, "%s\n", archive_error_string( fmu ) );
+</pre>
+</ul>
+<h2>Analysis Summary</h2>
+<p>
+Hits = 58
+<br>
+Lines analyzed = 4999 in approximately 0.05 seconds (104693 lines/second)
+<br>
+Physical Source Lines of Code (SLOC) = 2967
+<br>
+Hits@level = [0]  40 [1]   8 [2]   7 [3]   1 [4]   2 [5]   0 <br>
+Hits@level+ = [0+]  58 [1+]  18 [2+]  10 [3+]   3 [4+]   2 [5+]   0 <br>
+Hits/KSLOC@level+ = [0+] 19.5484 [1+] 6.06673 [2+] 3.37041 [3+] 1.01112 [4+] 0.674082 [5+]   0 <br>
+Minimum risk level = 0
+<br>
+Not every hit is necessarily a security vulnerability.
+You can inhibit a report by adding a comment in this form:
+// flawfinder: ignore
+Make *sure* it's a false positive!
+You can use the option --neverignore to show these.
+<br>
+There may be other security vulnerabilities; review your code!
+<br>
+See '<a href="https://dwheeler.com/secure-programs">Secure Programming HOWTO</a>'
+(<a href="https://dwheeler.com/secure-programs">https://dwheeler.com/secure-programs</a>) for more information.
+</body>
+</html>

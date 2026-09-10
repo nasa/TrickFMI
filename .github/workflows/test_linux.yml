@@ -1,0 +1,84 @@
+name: Linux
+
+on: push
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    container: docker://oraclelinux:8
+
+    steps:
+
+      # Update the Package Manager
+      - name: Update package manager
+        run: |
+          dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+          dnf config-manager --set-enabled ol8_codeready_builder
+          dnf -y update
+
+      # Install Trick Dependencies
+      - name: Install Trick dependencies
+        run: >
+          dnf -y install 'dnf-command(config-manager)' dnf-plugins-core
+          bison clang flex git llvm make maven swig cmake clang-devel
+          gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static
+          ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 udunits2
+          udunits2-devel which zlib-devel libX11-devel libXt-devel python3-devel diffutils cppcheck
+          libarchive-devel.x86_64
+
+      # Install Dependencies needed by the TrickFMI Packge
+      - name: Install TrickFMI Dependencies
+        run: |
+          python3 -m pip install GitPython
+          python3 -m pip install PyYAML
+          python3 -m pip install pygments
+          python3 -m pip install flawfinder
+          python3 -m pip install numpy
+
+      # Clone the Repository
+      - name: Checkout repository
+        uses: actions/checkout@master
+
+      # Clone and Build Trick
+      - name: Build Trick
+        run: |
+          export TRICK_HOME="/home/trick"
+          export MAKEFLAGS=-j`nproc`
+          export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
+          git clone https://github.com/nasa/trick.git ${TRICK_HOME}
+          cd ${TRICK_HOME}
+          ./configure
+          make
+
+      # CppCheck
+      - name: CppCheck
+        run: |
+          export TRICK_HOME="/home/trick"
+          echo "$TRICK_HOME/bin" >> $GITHUB_PATH
+          git config --global --add safe.directory ${PWD}
+          scripts/check_code.py --overwrite --xml_output
+
+      # Flaw Finder
+      - name: Flaw Finder
+        run: |
+          export TRICK_HOME="/home/trick"
+          echo "$TRICK_HOME/bin" >> $GITHUB_PATH
+          git config --global --add safe.directory ${PWD}
+          scripts/find_flaws.py -m0 
+
+      # Simulation Tests
+      - name: Build and Run Sims
+        run: |
+          export TRICK_HOME="/home/trick"
+          echo "$TRICK_HOME/bin" >> $GITHUB_PATH
+          git config --global --add safe.directory ${PWD}
+          python3 scripts/run_tests.py quiet
+
+      # Archive the Test Artifacts
+      - name: Archive Test Artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: dist-without-markdown
+          path: maintenance
+

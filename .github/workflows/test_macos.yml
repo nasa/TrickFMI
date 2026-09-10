@@ -1,0 +1,73 @@
+name: macOS
+
+on: push
+
+jobs:
+  macos:
+    runs-on: macos-latest
+
+    steps:
+      # Clone the Repository
+      - name: Checkout repository
+        uses: actions/checkout@master
+
+
+      # Install Trick Dependencies
+      - name: Install Trick dependencies
+        run: |
+          brew install --cask xquartz
+          brew install swig udunits openmotif maven
+          wget https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.6/clang+llvm-14.0.6-x86_64-apple-darwin.tar.xz
+          tar -xvf clang+llvm-14.0.6-x86_64-apple-darwin.tar.xz
+
+      # Install Dependencies needed by the TrickFMI Packge
+      - name: Install TrickFMI Dependencies
+        run: |
+          python3 -m pip install GitPython
+          python3 -m pip install PyYAML
+          python3 -m pip install pygments
+          python3 -m pip install flawfinder
+          python3 -m pip install numpy
+          brew install cppcheck libarchive
+
+      # Clone and Build Trick
+      - name: Build Trick
+        run: |
+          git clone https://github.com/nasa/trick.git ${TRICK_HOME}
+          cd trick
+          ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-14.0.6-x86_64-apple-darwin
+          make
+          
+      # CppCheck
+      - name: CppCheck
+        run: |
+          export TRICK_HOME="${GITHUB_WORKSPACE}/trick"
+          echo "$TRICK_HOME/bin" >> $GITHUB_PATH
+          git config --global --add safe.directory ${PWD}
+          python3 scripts/check_code.py --overwrite --xml_output
+
+      # Flaw Finder
+      - name: Flaw Finder
+        run: |
+          export TRICK_HOME="${GITHUB_WORKSPACE}/trick"
+          echo "$TRICK_HOME/bin" >> $GITHUB_PATH
+          git config --global --add safe.directory ${PWD}
+          which flawfinder
+          python3 scripts/find_flaws.py -m0 
+
+      # Simulation Tests
+      - name: Build and Run Sims
+        run: |
+          export TRICK_HOME="${GITHUB_WORKSPACE}/trick"
+          echo "$TRICK_HOME/bin" >> $GITHUB_PATH
+          git config --global --add safe.directory ${PWD}
+          python3 scripts/run_tests.py quiet
+
+      # Archive the Test Artifacts
+      - name: Archive Test Artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: dist-without-markdown
+          path: maintenance
+

@@ -100,7 +100,7 @@ void parabolic(
 
 int main( int nargs, char ** args )
 {
-   int log_cycle_count;
+   int log_cycle_count = 0;
    unsigned long frame_count;
    double t0, x, x0, v, v0, a;
    double start_time, stop_time, sim_time;
