@@ -6,7 +6,7 @@
 Defines all the model specific FMU wrapped Trick Ball model data.  This
 \ref TrickBallModel data is encapsulated in the generic \ref TrickFMI2ModelBase
 data as the model_data attribute.  A \ref TrickFMI2ModelBase instance
-is the FMI gerenic \ref fmi2Component data that is passed into almost all the
+is the FMI generic \ref fmi2Component data that is passed into almost all the
 FMI routines.  This model data can be accessed by casting the \ref fmi2Component
 into a \ref TrickFMI2ModelBase.  The generic \ref TrickFMIModel model_data
 attribute can then be cast to this \ref TrickBallModel data type.

@@ -27,7 +27,7 @@ simulation interface classes.  This example uses the TrickFMI wrapper code to
 create a Functional Mock-up Interface (FMI) compliant Functional Mock-up
 Unit (FMU).  The use of this FMU is demonstrated in both stand alone C++
 programs and in Trick based simulations.  The Trick based simulations
-demonstrate the use of the TrickFMI FMU interfaces classes.
+demonstrate the use of the TrickFMI FMU interface classes.
 
 @b References  @n
 -# Lin, A., and Penn, J., <i>Trick User Guide</i>,
@@ -92,7 +92,7 @@ int ball_force_field(
 
 int ball_print(             /* RETURN: -- Integration multi-step id */
    double      sim_time,    /* IN:     s  Simulation elapsed time.  */
-   BallExec  * exec_data,   /* IN:     -- Executive control date.   */
+   BallExec  * exec_data,   /* IN:     -- Executive control data.   */
    BallState * state      );/* INOUT:  -- Ball EOM state parameters */
 
 int ball_state_default_data( BallStateInit*, BallState* );

@@ -53,8 +53,8 @@ typedef enum {
 
 typedef struct {
 
-    int lower_set;     /**< @trick_units{--}  @n Yes = Lower bounds has been set */
-    int upper_set;     /**< @trick_units{--}  @n Yes = Upper bounds has been set */
+    int lower_set;     /**< @trick_units{--}  @n Yes = Lower bound has been set */
+    int upper_set;     /**< @trick_units{--}  @n Yes = Upper bound has been set */
     int iterations;    /**< @trick_units{--}  @n Total num of iterations
                                used to fire event */
     int fires;         /**< @trick_units{--}  @n Total num of times event fired */
